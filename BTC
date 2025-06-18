@@ -1,0 +1,356 @@
+import React, { useState, useEffect } from 'react';
+import { AlertTriangle, Waves, Newspaper, Rss, Target, Check, X, TrendingUp, TrendingDown } from 'lucide-react';
+
+// --- Technical Analysis & SMC Calculation Library ---
+const ta = {
+    // Basic Indicators (SMA, EMA)
+    sma: (data, period) => {
+        if (!data || data.length < period) return [];
+        let result = [];
+        for (let i = 0; i <= data.length - period; i++) {
+            let sum = 0;
+            for (let j = 0; j < period; j++) { sum += data[i + j]; }
+            result.push(sum / period);
+        }
+        return result;
+    },
+    ema: (data, period) => {
+        if (!data || data.length < period) return [];
+        const k = 2 / (period + 1);
+        let emaData = [data.slice(0, period).reduce((a, b) => a + b, 0) / period];
+        for (let i = period; i < data.length; i++) {
+            emaData.push(data[i] * k + emaData[emaData.length - 1] * (1 - k));
+        }
+        return emaData;
+    },
+    // Wilder's Smoothing for ADX
+    wildersSmooth: (data, p) => {
+        if (data.length < p) return [];
+        let smoothed = [data.slice(0, p).reduce((a, b) => a + b, 0)];
+        for (let i = p; i < data.length; i++) {
+            smoothed.push((smoothed[smoothed.length - 1] * (p - 1) + data[i]));
+        }
+        return smoothed.map(val => val / p);
+    },
+    // ADX Indicator
+    adx: (highs, lows, closes, period) => {
+        if (!highs || !lows || !closes || closes.length < period * 2) return { adx: [], diPlus: [], diMinus: []};
+        let trs = [], plusDMs = [], minusDMs = [];
+        for (let i = 1; i < closes.length; i++) {
+            trs.push(Math.max(highs[i] - lows[i], Math.abs(highs[i] - closes[i - 1]), Math.abs(lows[i] - closes[i - 1])));
+            plusDMs.push(highs[i] - highs[i - 1] > lows[i - 1] - lows[i] ? Math.max(highs[i] - highs[i - 1], 0) : 0);
+            minusDMs.push(lows[i - 1] - lows[i] > highs[i] - highs[i - 1] ? Math.max(lows[i - 1] - lows[i], 0) : 0);
+        }
+        
+        const smoothedTR = ta.wildersSmooth(trs, period);
+        const smoothedPlusDM = ta.wildersSmooth(plusDMs, period);
+        const smoothedMinusDM = ta.wildersSmooth(minusDMs, period);
+
+        if (smoothedTR.length === 0) return { adx: [], diPlus: [], diMinus: []};
+
+        let plusDIs = [], minusDIs = [];
+        for (let i = 0; i < smoothedTR.length; i++) {
+            plusDIs.push(smoothedTR[i] !== 0 ? (smoothedPlusDM[i] / smoothedTR[i]) * 100 : 0);
+            minusDIs.push(smoothedTR[i] !== 0 ? (smoothedMinusDM[i] / smoothedTR[i]) * 100 : 0);
+        }
+
+        let dxs = [];
+        for (let i = 0; i < plusDIs.length; i++) {
+            dxs.push(plusDIs[i] + minusDIs[i] !== 0 ? (Math.abs(plusDIs[i] - minusDIs[i]) / (plusDIs[i] + minusDIs[i])) * 100 : 0);
+        }
+
+        if(dxs.length < period) return { adx: [], diPlus: plusDIs, diMinus: minusDIs };
+        let adxValues = ta.wildersSmooth(dxs, period);
+        return { adx: adxValues, diPlus: plusDIs.slice(-adxValues.length), diMinus: minusDIs.slice(-adxValues.length) };
+    },
+    // Bollinger Bands
+    bollingerBands: (data, period, stdDev) => {
+        if (!data || data.length < period) return [];
+        let bands = [];
+        for (let i = 0; i <= data.length - period; i++) {
+            const slice = data.slice(i, i + period);
+            const mean = slice.reduce((a, b) => a + b, 0) / period;
+            const variance = slice.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / period;
+            const sd = Math.sqrt(variance);
+            bands.push({
+                bandwidth: (mean + (sd * stdDev)) - (mean - (sd * stdDev))
+            });
+        }
+        return bands;
+    },
+    // Smart Money Concepts
+    smc: (candles) => {
+        if (!candles || candles.length < 50) return {};
+        const recentCandles = candles.slice(-100); // Analyze last 100 candles
+        const highs = recentCandles.map(c => c.h);
+        const lows = recentCandles.map(c => c.l);
+
+        const swingHigh = Math.max(...highs);
+        const swingLow = Math.min(...lows);
+        
+        const lastCandle = recentCandles[recentCandles.length - 1];
+        
+        // Find last significant swing points before the absolute high/low
+        const highIndex = highs.indexOf(swingHigh);
+        const lowIndex = lows.indexOf(swingLow);
+        const prevHigh = Math.max(...highs.slice(0, highIndex));
+        const prevLow = Math.min(...lows.slice(0, lowIndex));
+
+        const bos = lastCandle.c > prevHigh ? `Alta (quebrou ${prevHigh.toFixed(2)})` : lastCandle.c < prevLow ? `Baixa (quebrou ${prevLow.toFixed(2)})` : 'Nenhuma';
+        
+        // Find Order Blocks (simplified)
+        let bullishOB = null;
+        for (let i = recentCandles.length - 3; i > 1; i--) {
+            // Find down candle followed by strong up move
+            if (recentCandles[i].c < recentCandles[i].o && recentCandles[i+1].c > recentCandles[i+1].o && recentCandles[i+2].c > recentCandles[i+2].o) {
+                 bullishOB = { low: recentCandles[i].l, high: recentCandles[i].h };
+                 break;
+            }
+        }
+        let bearishOB = null;
+        for (let i = recentCandles.length - 3; i > 1; i--) {
+             // Find up candle followed by strong down move
+            if (recentCandles[i].c > recentCandles[i].o && recentCandles[i+1].c < recentCandles[i+1].o && recentCandles[i+2].c < recentCandles[i+2].o) {
+                 bearishOB = { low: recentCandles[i].l, high: recentCandles[i].h };
+                 break;
+            }
+        }
+
+        return {
+            bos,
+            liquidityHigh: swingHigh,
+            liquidityLow: swingLow,
+            bullishOB,
+            bearishOB
+        }
+    }
+};
+
+// --- Main Analysis Logic ---
+const generateAnalysis = (dataMain, news) => {
+    const analysis = {};
+    const mainCandles = dataMain.map(c => ({ o: parseFloat(c.o), h: parseFloat(c.h), l: parseFloat(c.l), c: parseFloat(c.c) }));
+
+    // --- Didi Index Logic ---
+    const closesMain = mainCandles.map(c => c.c);
+    const highsMain = mainCandles.map(c => c.h);
+    const lowsMain = mainCandles.map(c => c.l);
+    
+    const adxResult = ta.adx(highsMain, lowsMain, closesMain, 8);
+    const adx = adxResult.adx.slice(-1)[0];
+    const prevAdx = adxResult.adx.slice(-2)[0];
+    const adxEntry = adx > 32 && adx > prevAdx;
+
+    const bbands = ta.bollingerBands(closesMain, 20, 2);
+    const bandwidth = bbands.slice(-1)[0]?.bandwidth || 0;
+    const prevBandwidth = bbands.slice(-2)[0]?.bandwidth || 0;
+    const bbandsEntry = bandwidth > prevBandwidth;
+
+    const didiFast = ta.sma(closesMain, 3).slice(-1)[0];
+    const didiMedium = ta.sma(closesMain, 8).slice(-1)[0];
+    const didiSlow = ta.sma(closesMain, 20).slice(-1)[0];
+    const didiNeedle = Math.abs(didiFast - didiSlow) < (closesMain.slice(-1)[0] * 0.001);
+    const didiBuySignal = didiNeedle && didiFast > didiMedium && didiMedium > didiSlow;
+    const didiSellSignal = didiNeedle && didiFast < didiMedium && didiMedium < didiSlow;
+    
+    if (adxEntry && bbandsEntry && didiBuySignal) {
+        analysis.decision = "COMPRA";
+    } else if (adxEntry && bbandsEntry && didiSellSignal) {
+        analysis.decision = "VENDA";
+    } else {
+        analysis.decision = "AGUARDAR";
+    }
+
+    analysis.checklist = [
+        { name: "ADX (8) > 32 e Ascendente", active: adxEntry, value: `Valor: ${adx?.toFixed(2)}` },
+        { name: "Bandas de Bollinger em Expansão", active: bbandsEntry, value: `Largura: ${bandwidth?.toFixed(2)}` },
+        { name: "Agulhada Didi de Compra", active: didiBuySignal, value: `Médias alinhadas` },
+        { name: "Agulhada Didi de Venda", active: didiSellSignal, value: `Médias alinhadas` }
+    ];
+
+    // --- SMC Logic ---
+    analysis.smc = ta.smc(mainCandles);
+
+    analysis.news = news;
+    return analysis;
+};
+
+// --- Components ---
+const Section = ({ title, icon, children }) => (
+    <div className="mb-6">
+        <h3 className="flex items-center text-xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">
+            {icon}
+            <span className="ml-2">{title}</span>
+        </h3>
+        <div className="text-gray-300 text-sm md:text-base space-y-3 leading-relaxed">{children}</div>
+    </div>
+);
+
+const DecisionPanel = ({ decision }) => {
+    const styles = {
+        COMPRA: "bg-green-500 border-green-400",
+        VENDA: "bg-red-500 border-red-400",
+        AGUARDAR: "bg-gray-600 border-gray-500"
+    };
+    const style = styles[decision] || styles.AGUARDAR;
+    return (
+        <div className={`text-center p-4 sm:p-6 rounded-lg border-2 shadow-lg mb-6 ${style}`}>
+            <h2 className="text-lg sm:text-xl font-semibold text-white mb-1">SINAL ATUAL</h2>
+            <p className="text-4xl sm:text-5xl font-bold text-white tracking-wider">{decision}</p>
+        </div>
+    );
+};
+
+const ChecklistItem = ({ name, active, value }) => (
+    <li className="flex items-center justify-between p-3 bg-gray-800/60 rounded-md">
+        <div className="flex items-center">
+             <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 ${active ? 'bg-green-500' : 'bg-red-500'}`}>
+                {active ? <Check size={14} className="text-white"/> : <X size={14} className="text-white"/>}
+             </div>
+             <span className="text-white">{name}</span>
+        </div>
+         <span className="text-gray-400 text-xs">{value}</span>
+    </li>
+);
+
+const SmcDataPoint = ({ label, value, className = '' }) => (
+    <div className={`flex justify-between items-center p-2 rounded-md bg-gray-900/50 ${className}`}>
+        <span className="text-gray-400 font-semibold">{label}</span>
+        <span className="font-mono text-white">{value}</span>
+    </div>
+);
+
+export default function App() {
+    const [analysisReport, setAnalysisReport] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [timeframe, setTimeframe] = useState('5m');
+    const timeframes = ['5m', '15m', '1h', '4h', '1d'];
+
+    useEffect(() => {
+        handleAnalyze();
+    }, [timeframe]);
+
+    const handleAnalyze = async () => {
+        setIsLoading(true);
+        setError('');
+        setAnalysisReport(null);
+        try {
+            const newsData = [ { "headline": "Análise On-Chain mostra acumulação de BTC." }, { "headline": "Reguladores dos EUA sinalizam postura neutra sobre ETFs." }, { "headline": "Taxas de Financiamento (Funding Rates) em território positivo." } ];
+            const now = Date.now();
+            
+            // Multipliers in days to fetch enough data for each timeframe
+            const multipliers = { '5m': 5, '15m': 15, '1h': 30, '4h': 100, '1d': 500 };
+            const daysToFetch = multipliers[timeframe] || 30;
+            const startTime = now - (daysToFetch * 24 * 60 * 60 * 1000);   
+
+            const req = { "type": "candleSnapshot", "req": { "coin": "BTC", "interval": timeframe, "startTime": startTime, "endTime": now } };
+            
+            const res = await fetch('https://api.hyperliquid.xyz/info', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
+
+            if (!res.ok) throw new Error(`Falha na API da Hyperliquid (Intervalo: ${timeframe}).`);
+
+            const data = (await res.json()).slice(-500);
+            
+            if (!Array.isArray(data) || data.length < 200) {
+                 throw new Error(`Dados históricos insuficientes para ${timeframe}. Recebidos: ${data.length} candles.`);
+            }
+            
+            const report = generateAnalysis(data, newsData);
+            setAnalysisReport(report);
+
+        } catch (e) {
+            setError(e.message || 'Ocorreu um erro desconhecido.');
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    return (
+        <div className="bg-gray-900 min-h-screen text-white font-sans p-4 sm:p-8">
+            <div className="max-w-4xl mx-auto">
+                <header className="text-center mb-8">
+                    <div className="flex items-center justify-center mb-2">
+                         <Rss className="w-12 h-12 text-cyan-400" />
+                        <h1 className="text-4xl sm:text-5xl font-bold ml-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+                            Sir BAP AI
+                        </h1>
+                    </div>
+                    <p className="text-gray-400">Análise Multi-Timeframe para Bitcoin (BTC)</p>
+                </header>
+
+                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 flex-wrap justify-center">
+                        <span className="font-semibold">Tempo Gráfico:</span>
+                        <div className="flex bg-gray-900 rounded-md p-1 flex-wrap">
+                            {timeframes.map(tf => (
+                                <button key={tf} onClick={() => setTimeframe(tf)} className={`px-3 py-1 rounded-md text-sm font-bold transition-colors ${timeframe === tf ? 'bg-cyan-500 text-white' : 'text-gray-400 hover:bg-gray-700'}`}>
+                                    {tf}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <button onClick={handleAnalyze} disabled={isLoading} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-md transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-cyan-500/50 w-full sm:w-auto mt-4 sm:mt-0">
+                        {isLoading && <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
+                        {isLoading ? 'A analisar...' : 'Analisar Novamente'}
+                    </button>
+                </div>
+
+                {error && <div className="bg-red-900/50 text-red-300 p-4 rounded-lg text-center mb-4 flex items-center justify-center"><AlertTriangle className="w-5 h-5 mr-2" /> {error}</div>}
+                {isLoading && <div className="text-center p-8 text-cyan-400">A analisar os dados do BTC em tempo real...</div>}
+                
+                {analysisReport && !isLoading && (
+                    <div className="bg-gray-800/30 rounded-lg p-6 animate-fade-in">
+                        <DecisionPanel decision={analysisReport.decision} />
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <Section title={`Checklist Didi Index (${timeframe})`} icon={<Target size={24} />}>
+                                <ul className="space-y-2">
+                                   {analysisReport.checklist.map(item => <ChecklistItem key={item.name} {...item} /> )}
+                                </ul>
+                            </Section>
+
+                            <Section title={`Análise Smart Money (SMC) (${timeframe})`} icon={<Waves size={24} />}>
+                                <SmcDataPoint label="Break of Structure (BOS)" value={analysisReport.smc.bos || 'N/A'} />
+                                <SmcDataPoint label="Zona de Liquidez (Alta)" value={analysisReport.smc.liquidityHigh?.toFixed(2) || 'N/A'} className="text-red-400" />
+                                <SmcDataPoint label="Zona de Liquidez (Baixa)" value={analysisReport.smc.liquidityLow?.toFixed(2) || 'N/A'} className="text-green-400" />
+                                {analysisReport.smc.bullishOB && (
+                                    <div className="mt-4 border-t-2 border-green-500/50 pt-3">
+                                        <h4 className="font-bold text-green-400 mb-2">Cenário Bullish</h4>
+                                        <SmcDataPoint label="Order Block (OB)" value={`${analysisReport.smc.bullishOB.low.toFixed(2)} - ${analysisReport.smc.bullishOB.high.toFixed(2)}`} />
+                                        <SmcDataPoint label="Entrada (POI)" value={`~ ${analysisReport.smc.bullishOB.high.toFixed(2)}`} />
+                                        <SmcDataPoint label="Alvo" value={`~ ${analysisReport.smc.liquidityHigh.toFixed(2)}`} />
+                                        <SmcDataPoint label="Stop Loss" value={`< ${analysisReport.smc.bullishOB.low.toFixed(2)}`} />
+                                    </div>
+                                )}
+                                {analysisReport.smc.bearishOB && (
+                                    <div className="mt-4 border-t-2 border-red-500/50 pt-3">
+                                        <h4 className="font-bold text-red-400 mb-2">Cenário Bearish</h4>
+                                        <SmcDataPoint label="Order Block (OB)" value={`${analysisReport.smc.bearishOB.low.toFixed(2)} - ${analysisReport.smc.bearishOB.high.toFixed(2)}`} />
+                                        <SmcDataPoint label="Entrada (POI)" value={`~ ${analysisReport.smc.bearishOB.low.toFixed(2)}`} />
+                                        <SmcDataPoint label="Alvo" value={`~ ${analysisReport.smc.liquidityLow.toFixed(2)}`} />
+                                        <SmcDataPoint label="Stop Loss" value={`> ${analysisReport.smc.bearishOB.high.toFixed(2)}`} />
+                                    </div>
+                                )}
+                            </Section>
+                        </div>
+
+                        <div className="mt-6">
+                             <Section title="NOTÍCIAS E SENTIMENTO" icon={<Newspaper size={24} />}>
+                                <ul className="list-disc list-inside space-y-1 text-gray-400">
+                                    {analysisReport.news.map((item, index) => <li key={index}>{item.headline}</li>)}
+                                </ul>
+                            </Section>
+                        </div>
+                        
+                        <div className="text-center mt-8 text-xs text-gray-500">
+                            <p>Aviso: Esta é uma análise automatizada e não constitui uma recomendação de investimento. Utilize-a como um complemento à sua própria estratégia.</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+             <style>{`@keyframes fade-in {from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }`}</style>
+        </div>
+    );
+}
