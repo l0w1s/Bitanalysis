@@ -17,19 +17,26 @@
         .animate-fade-in { 
             animation: fade-in 0.5s ease-out forwards;
         }
+        .modal-enter {
+            animation: fade-in 0.3s ease-out forwards;
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white font-sans p-4 sm:p-8">
+<body class="bg-gray-900 text-white font-sans">
 
-    <div id="app-container" class="max-w-4xl mx-auto">
+    <div id="app-container" class="max-w-4xl mx-auto p-4 sm:p-8">
         
-        <header class="text-center mb-8">
+        <header class="text-center mb-8 relative">
             <div class="flex items-center justify-center mb-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
                 <h1 class="text-4xl sm:text-5xl font-bold ml-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
                     Sir BAP AI
                 </h1>
             </div>
+            <!-- Botão Sobre/Doar -->
+            <button id="about-button" class="absolute top-0 right-0 bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                Sobre / Doar
+            </button>
             <div id="price-display" class="flex items-center justify-center text-3xl font-bold text-white my-4" style="display: none;">
                 <span class="relative flex h-3 w-3 mr-3">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -55,6 +62,40 @@
         
         <div id="analysis-result" class="bg-gray-800/30 rounded-lg p-6" style="display: none;"></div>
     </div>
+    
+    <!-- Modal Sobre/Doar -->
+    <div id="about-modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4" style="display: none;">
+        <div id="about-modal-content" class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl border border-gray-600 relative modal-enter">
+            <button id="close-modal-button" class="absolute top-3 right-3 text-gray-400 hover:text-white">&times;</button>
+            <h2 class="text-2xl font-bold text-cyan-400 mb-4">Sobre o Sir BAP AI</h2>
+            <div class="text-gray-300 space-y-4">
+                <p>O <strong>Sir BAP AI</strong> é uma ferramenta de análise técnica automatizada, desenhada para fornecer uma visão clara do mercado de Bitcoin (BTC) com base em estratégias de trading consagradas.</p>
+                <div>
+                    <h3 class="font-bold text-lg text-white">Como Funciona a Análise?</h3>
+                    <p>A aplicação combina duas metodologias principais:</p>
+                    <ul class="list-disc list-inside ml-4 mt-2">
+                        <li><strong>Didi Index System:</strong> Para os sinais de entrada e saída, o sistema verifica a convergência de múltiplos indicadores (DMI, ADX, Bandas de Bollinger, Médias Móveis) para identificar pontos de alta probabilidade.</li>
+                        <li><strong>Smart Money Concepts (SMC):</strong> A análise de SMC identifica a estrutura do mercado, zonas de liquidez e Order Blocks (OBs) para fornecer um contexto sobre onde o "dinheiro inteligente" pode estar a posicionar-se.</li>
+                    </ul>
+                    <!-- ATUALIZADO: Menção à fonte de dados -->
+                    <p class="text-xs text-gray-400 mt-2">Todos os dados de mercado são fornecidos em tempo real pela API da Hyperliquid.</p>
+                </div>
+                <div class="border-t border-gray-600 pt-4 mt-4">
+                    <h3 class="font-bold text-lg text-white">Apoie o Desenvolvedor</h3>
+                    <p>Se esta ferramenta o ajudou nas suas análises, considere fazer uma doação para apoiar a manutenção e o desenvolvimento de novas funcionalidades. Qualquer quantia é bem-vinda!</p>
+                    <div class="mt-4 p-3 bg-gray-900 rounded-lg">
+                        <label class="text-sm font-bold text-gray-400">Carteira Bitcoin (BTC):</label>
+                        <div class="flex items-center justify-between mt-1 gap-4">
+                            <!-- ATUALIZADO: Endereço da carteira BTC -->
+                            <input id="btc-address" type="text" readonly value="bc1q5h0v9ghs89st9cz3wxld48fpcf8n3cudr9g83u" class="bg-transparent text-white w-full text-sm sm:text-base break-words">
+                            <button id="copy-address-button" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors whitespace-nowrap">Copiar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -66,6 +107,12 @@
         const priceDisplay = document.getElementById('price-display');
         const currentBtcPriceElement = document.getElementById('current-btc-price');
         
+        const aboutButton = document.getElementById('about-button');
+        const aboutModalOverlay = document.getElementById('about-modal-overlay');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const copyAddressButton = document.getElementById('copy-address-button');
+        const btcAddressInput = document.getElementById('btc-address');
+
         let currentTimeframe = '5m';
         const timeframes = ['5m', '15m', '1h', '4h', '1d'];
 
@@ -209,7 +256,6 @@
             const highsMain = mainCandles.map(c => c.h);
             const lowsMain = mainCandles.map(c => c.l);
 
-            // --- Entry Indicators ---
             const adxResult = ta.adx(highsMain, lowsMain, closesMain, 8);
             const adx = adxResult.adx.slice(-1)[0];
             const prevAdx = adxResult.adx.slice(-2)[0];
@@ -244,11 +290,9 @@
                 { name: "Agulhada Didi de Venda", active: didiSellSignal, value: `Médias alinhadas` }
             ];
 
-            // --- Exit Indicators Logic Refined ---
             const adxExit = adx < prevAdx;
             const bbandsExit = bandwidth < prevBandwidth;
             
-            // Stochastic
             const stoch = ta.stochastic(highsMain, lowsMain, closesMain, 8, 4, 4);
             const k = stoch.k.slice(-1)[0], prevK = stoch.k.slice(-2)[0];
             const d = stoch.d.slice(-1)[0], prevD = stoch.d.slice(-2)[0];
@@ -260,7 +304,6 @@
             if (stochIsDescending) stochStatusText = "Descendente (Vendido)";
             if (stochCrossed) stochStatusText = "Cruzamento (Saída)";
 
-            // TRIX
             const trixLine = ta.trix(closesMain, 4);
             const trixSignal = ta.sma(trixLine, 2);
             const trix = trixLine.slice(-1)[0], prevTrix = trixLine.slice(-2)[0];
@@ -424,6 +467,28 @@
 
             analyzeButton.addEventListener('click', handleAnalyze);
             
+            // Modal Logic
+            aboutButton.addEventListener('click', () => {
+                aboutModalOverlay.style.display = 'flex';
+            });
+            closeModalButton.addEventListener('click', () => {
+                aboutModalOverlay.style.display = 'none';
+            });
+            aboutModalOverlay.addEventListener('click', (e) => {
+                if (e.target === aboutModalOverlay) {
+                    aboutModalOverlay.style.display = 'none';
+                }
+            });
+            copyAddressButton.addEventListener('click', () => {
+                const address = btcAddressInput.value;
+                navigator.clipboard.writeText(address).then(() => {
+                    copyAddressButton.textContent = 'Copiado!';
+                    setTimeout(() => {
+                        copyAddressButton.textContent = 'Copiar';
+                    }, 2000);
+                });
+            });
+
             handleAnalyze();
         }
 
