@@ -30,6 +30,14 @@
                     Sir BAP AI
                 </h1>
             </div>
+            <!-- NOVO: Display de Preço do BTC -->
+            <div id="price-display" class="flex items-center justify-center text-3xl font-bold text-white my-4" style="display: none;">
+                <span class="relative flex h-3 w-3 mr-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                <span id="current-btc-price">--</span>
+            </div>
             <p class="text-gray-400">Análise Multi-Timeframe para Bitcoin (BTC)</p>
         </header>
 
@@ -63,6 +71,8 @@
         const loader = document.getElementById('loader');
         const errorMessage = document.getElementById('error-message');
         const analysisResultContainer = document.getElementById('analysis-result');
+        const priceDisplay = document.getElementById('price-display');
+        const currentBtcPriceElement = document.getElementById('current-btc-price');
         
         let currentTimeframe = '5m';
         const timeframes = ['5m', '15m', '1h', '4h', '1d'];
@@ -204,8 +214,13 @@
         };
         
         // --- Funções de Renderização ---
-        function renderUI(report) {
+        function renderUI(report, currentPrice) {
             const { decision, checklist, smc, news } = report;
+
+            // Atualiza o preço do BTC
+            currentBtcPriceElement.textContent = '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            priceDisplay.style.display = 'flex';
+
 
             const decisionStyles = {
                 COMPRA: "bg-green-500 border-green-400",
@@ -312,8 +327,9 @@
                     throw new Error(`Dados históricos insuficientes para ${currentTimeframe}. Recebidos: ${data.length} candles.`);
                 }
                 
+                const currentPrice = parseFloat(data[data.length - 1].c);
                 const report = generateAnalysis(data, newsData);
-                renderUI(report);
+                renderUI(report, currentPrice);
                 analysisResultContainer.style.display = 'block';
 
             } catch (e) {
@@ -359,4 +375,3 @@
     </script>
 </body>
 </html>
-
