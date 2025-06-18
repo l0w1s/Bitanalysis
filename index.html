@@ -77,8 +77,7 @@
                         <li><strong>Didi Index System:</strong> Para os sinais de entrada e saída, o sistema verifica a convergência de múltiplos indicadores (DMI, ADX, Bandas de Bollinger, Médias Móveis) para identificar pontos de alta probabilidade.</li>
                         <li><strong>Smart Money Concepts (SMC):</strong> A análise de SMC identifica a estrutura do mercado, zonas de liquidez e Order Blocks (OBs) para fornecer um contexto sobre onde o "dinheiro inteligente" pode estar a posicionar-se.</li>
                     </ul>
-                    <!-- ATUALIZADO: Menção à fonte de dados -->
-                    <p class="text-xs text-gray-400 mt-2">Todos os dados de mercado são fornecidos em tempo real pela API da Hyperliquid.</p>
+                    <p class="text-xs text-gray-400 mt-2">Todos os dados de mercado são fornecidos pela API da Hyperliquid. As notícias são fornecidas pela API da CryptoCompare.</p>
                 </div>
                 <div class="border-t border-gray-600 pt-4 mt-4">
                     <h3 class="font-bold text-lg text-white">Apoie o Desenvolvedor</h3>
@@ -86,7 +85,6 @@
                     <div class="mt-4 p-3 bg-gray-900 rounded-lg">
                         <label class="text-sm font-bold text-gray-400">Carteira Bitcoin (BTC):</label>
                         <div class="flex items-center justify-between mt-1 gap-4">
-                            <!-- ATUALIZADO: Endereço da carteira BTC -->
                             <input id="btc-address" type="text" readonly value="bc1q5h0v9ghs89st9cz3wxld48fpcf8n3cudr9g83u" class="bg-transparent text-white w-full text-sm sm:text-base break-words">
                             <button id="copy-address-button" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors whitespace-nowrap">Copiar</button>
                         </div>
@@ -398,13 +396,21 @@
                 
                 <section class="mt-6">
                      <h3 class="flex items-center text-xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">${icons.newspaper}<span class="ml-2">NOTÍCIAS E SENTIMENTO</span></h3>
-                     <ul class="list-disc list-inside space-y-1 text-gray-400">${news.map(item => `<li>${item.headline}</li>`).join('')}</ul>
+                     <ul id="news-list" class="list-disc list-inside space-y-1 text-gray-400"></ul>
                 </section>
 
                 <div class="text-center mt-8 text-xs text-gray-500">
                     <p>Aviso: Esta é uma análise automatizada e não constitui uma recomendação de investimento. Utilize-a como um complemento à sua própria estratégia.</p>
                 </div>
             `;
+            // ATUALIZADO: Renderiza as notícias dinamicamente
+            const newsList = document.getElementById('news-list');
+            if(news && news.length > 0){
+                newsList.innerHTML = news.map(item => `<li>${item.title}</li>`).join('');
+            } else {
+                newsList.innerHTML = `<li>Não foi possível carregar as notícias.</li>`;
+            }
+
             analysisResultContainer.classList.add('animate-fade-in');
         }
 
@@ -416,7 +422,19 @@
             analyzeButton.disabled = true;
 
             try {
-                const newsData = [ { "headline": "Análise On-Chain mostra acumulação de BTC." }, { "headline": "Reguladores dos EUA sinalizam postura neutra sobre ETFs." }, { "headline": "Taxas de Financiamento (Funding Rates) em território positivo." } ];
+                // ATUALIZADO: Fetch de notícias dinâmicas
+                let newsData = [];
+                try {
+                    const newsResponse = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&categories=BTC,ETH,CRYPTO');
+                    if(newsResponse.ok) {
+                        const newsJson = await newsResponse.json();
+                        newsData = newsJson.Data.slice(0, 4); // Pega as 4 primeiras notícias
+                    }
+                } catch (newsError) {
+                    console.error("Falha ao buscar notícias:", newsError);
+                    // Continua mesmo se as notícias falharem
+                }
+
                 const now = Date.now();
                 const multipliers = { '5m': 5, '15m': 15, '1h': 30, '4h': 100, '1d': 500 };
                 const daysToFetch = multipliers[currentTimeframe] || 30;
