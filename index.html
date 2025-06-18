@@ -236,26 +236,6 @@
                 analysis.decision = "AGUARDAR";
             }
 
-            // --- Exit Indicators ---
-            const adxExit = adx < prevAdx;
-            const bbandsExit = bandwidth < prevBandwidth;
-            const stoch = ta.stochastic(highsMain, lowsMain, closesMain, 8, 4, 4);
-            const k = stoch.k.slice(-1)[0], prevK = stoch.k.slice(-2)[0];
-            const d = stoch.d.slice(-1)[0], prevD = stoch.d.slice(-2)[0];
-            const stochExitBuy = k < d && prevK > prevD;
-            const stochExitSell = k > d && prevK < prevD;
-            const trixLine = ta.trix(closesMain, 4);
-            const trixSignal = ta.sma(trixLine, 2);
-            const trix = trixLine.slice(-1)[0], prevTrix = trixLine.slice(-2)[0];
-            const signal = trixSignal.slice(-1)[0], prevSignal = trixSignal.slice(-2)[0];
-            const trixExitBuy = trix < signal && prevTrix > prevSignal;
-            const trixExitSell = trix > signal && prevTrix < prevSignal;
-
-            let exitDecision = "MANTER";
-            if (adxExit || bbandsExit || stochExitBuy || trixExitBuy || stochExitSell || trixExitSell) {
-                exitDecision = "AVALIAR SAÍDA";
-            }
-
             analysis.entryChecklist = [
                 { name: "Tendência DMI", active: dmiTrendIsUp, value: dmiTrendIsUp ? `Alta (DI+ > DI-)` : `Baixa (DI- > DI+)` },
                 { name: "ADX (8) > 32 e Ascendente", active: adxEntry, value: `Valor: ${adx?.toFixed(2) || 'N/A'}` },
@@ -263,13 +243,47 @@
                 { name: "Agulhada Didi de Compra", active: didiBuySignal, value: `Médias alinhadas` },
                 { name: "Agulhada Didi de Venda", active: didiSellSignal, value: `Médias alinhadas` }
             ];
+
+            // --- Exit Indicators Logic Refined ---
+            const adxExit = adx < prevAdx;
+            const bbandsExit = bandwidth < prevBandwidth;
+            
+            // Stochastic
+            const stoch = ta.stochastic(highsMain, lowsMain, closesMain, 8, 4, 4);
+            const k = stoch.k.slice(-1)[0], prevK = stoch.k.slice(-2)[0];
+            const d = stoch.d.slice(-1)[0], prevD = stoch.d.slice(-2)[0];
+            const stochIsAscending = k > prevK && d > prevD;
+            const stochIsDescending = k < prevK && d < prevD;
+            const stochCrossed = (k < d && prevK > prevD) || (k > d && prevK < prevD);
+            let stochStatusText = "Lateral";
+            if (stochIsAscending) stochStatusText = "Ascendente (Comprado)";
+            if (stochIsDescending) stochStatusText = "Descendente (Vendido)";
+            if (stochCrossed) stochStatusText = "Cruzamento (Saída)";
+
+            // TRIX
+            const trixLine = ta.trix(closesMain, 4);
+            const trixSignal = ta.sma(trixLine, 2);
+            const trix = trixLine.slice(-1)[0], prevTrix = trixLine.slice(-2)[0];
+            const signal = trixSignal.slice(-1)[0], prevSignal = trixSignal.slice(-2)[0];
+            const trixIsAscending = trix > prevTrix && signal > prevSignal;
+            const trixIsDescending = trix < prevTrix && signal < prevSignal;
+            const trixCrossed = (trix < signal && prevTrix > prevSignal) || (trix > signal && prevTrix < prevSignal);
+            let trixStatusText = "Lateral";
+            if (trixIsAscending) trixStatusText = "Ascendente (Comprado)";
+            if (trixIsDescending) trixStatusText = "Descendente (Vendido)";
+            if (trixCrossed) trixStatusText = "Cruzamento (Saída)";
+
+            let exitDecision = "MANTER";
+            if (adxExit || bbandsExit || stochCrossed || trixCrossed) {
+                exitDecision = "AVALIAR SAÍDA";
+            }
             
             analysis.exitDecision = exitDecision;
             analysis.exitChecklist = [
-                { name: "Inversão do ADX", active: adxExit, value: adx < prevAdx ? "Descendente" : "Ascendente" },
-                { name: "Fechamento das Bandas", active: bbandsExit, value: bandwidth < prevBandwidth ? "Contraindo" : "Expandindo" },
-                { name: "Inversão do Estocástico", active: stochExitBuy || stochExitSell, value: stochExitBuy ? "Sinal de Venda" : stochExitSell ? "Sinal de Compra" : "Sem cruzamento" },
-                { name: "Inversão do TRIX", active: trixExitBuy || trixExitSell, value: trixExitBuy ? "Sinal de Venda" : trixExitSell ? "Sinal de Compra" : "Sem cruzamento" }
+                { name: "Sinal ADX", active: adxExit, value: adxExit ? "Invertido (Saída)" : "Mantém Força" },
+                { name: "Sinal Bandas de Bollinger", active: bbandsExit, value: bbandsExit ? "Fechando (Saída)" : "Expandindo" },
+                { name: "Sinal Estocástico", active: stochCrossed, value: stochStatusText },
+                { name: "Sinal TRIX", active: trixCrossed, value: trixStatusText }
             ];
 
             analysis.smc = ta.smc(mainCandles);
@@ -283,15 +297,8 @@
             currentBtcPriceElement.textContent = '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             priceDisplay.style.display = 'flex';
 
-            const decisionStyles = {
-                COMPRA: "bg-green-500 border-green-400",
-                VENDA: "bg-red-500 border-red-400",
-                AGUARDAR: "bg-gray-600 border-gray-500"
-            };
-            const exitDecisionStyles = {
-                "AVALIAR SAÍDA": "bg-yellow-500 border-yellow-400",
-                "MANTER": "bg-gray-600 border-gray-500"
-            };
+            const decisionStyles = { COMPRA: "bg-green-500 border-green-400", VENDA: "bg-red-500 border-red-400", AGUARDAR: "bg-gray-600 border-gray-500" };
+            const exitDecisionStyles = { "AVALIAR SAÍDA": "bg-yellow-500 border-yellow-400", "MANTER": "bg-gray-600 border-gray-500" };
 
             const createChecklistHTML = (list) => list.map(item => {
                 let iconHTML, bgColor;
