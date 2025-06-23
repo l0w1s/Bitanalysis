@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sir BAP AI - Análise de BTC</title>
+    <title>Sir BAP AI - Análise Multi-Estratégia</title>
     <!-- Tailwind CSS para Estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -24,7 +24,7 @@
 </head>
 <body class="bg-gray-900 text-white font-sans">
 
-    <div id="app-container" class="max-w-4xl mx-auto p-4 sm:p-8">
+    <div id="app-container" class="max-w-5xl mx-auto p-4 sm:p-8">
         
         <header class="text-center mb-8 relative">
             <div class="flex items-center justify-center mb-2">
@@ -33,7 +33,6 @@
                     Sir BAP AI
                 </h1>
             </div>
-            <!-- Botão Sobre/Doar -->
             <button id="about-button" class="absolute top-0 right-0 bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                 Sobre / Doar
             </button>
@@ -44,23 +43,24 @@
                 </span>
                 <span id="current-btc-price">--</span>
             </div>
-            <p class="text-gray-400">Análise Multi-Timeframe para Bitcoin (BTC)</p>
+            <p class="text-gray-400">Análise Multi-Estratégia para Bitcoin (BTC)</p>
         </header>
 
-        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2 flex-wrap justify-center">
+        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
                 <span class="font-semibold">Tempo Gráfico:</span>
-                <div id="timeframe-buttons" class="flex bg-gray-900 rounded-md p-1 flex-wrap"></div>
+                <div id="timeframe-buttons" class="flex bg-gray-900 rounded-md p-1"></div>
             </div>
-             <div class="flex items-center gap-2 flex-wrap justify-center">
+            <div class="flex items-center gap-2">
                 <span class="font-semibold">Estratégia:</span>
-                <div class="flex bg-gray-900 rounded-md p-1 flex-wrap">
-                     <select id="strategy-selector" class="bg-gray-700 text-white rounded-md p-1.5 text-sm font-bold transition-colors">
-                        <option value="didi_qqe">Didi Index + QQE</option>
-                    </select>
-                </div>
+                <select id="strategy-selector" class="bg-gray-700 text-white rounded-md p-2 text-sm font-bold transition-colors w-full sm:w-auto">
+                    <option value="didi_qqe">Didi Index</option>
+                    <option value="smc">Smart Money Concepts</option>
+                    <option value="dow">Teoria de Dow</option>
+                    <option value="elliott">Ondas de Elliott (Beta)</option>
+                </select>
             </div>
-            <button id="analyze-button" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-md transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-cyan-500/50 w-full sm:w-auto mt-4 sm:mt-0">
+            <button id="analyze-button" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-md transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-cyan-500/50 w-full sm:w-auto">
                 Analisar Novamente
             </button>
         </div>
@@ -71,25 +71,25 @@
         <div id="analysis-result" class="bg-gray-800/30 rounded-lg p-6" style="display: none;"></div>
     </div>
     
-    <!-- Modal Sobre/Doar -->
-    <div id="about-modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4" style="display: none;">
+    <div id="about-modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50" style="display: none;">
         <div id="about-modal-content" class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl border border-gray-600 relative modal-enter">
             <button id="close-modal-button" class="absolute top-3 right-3 text-gray-400 hover:text-white">&times;</button>
             <h2 class="text-2xl font-bold text-cyan-400 mb-4">Sobre o Sir BAP AI</h2>
             <div class="text-gray-300 space-y-4">
                 <p>O <strong>Sir BAP AI</strong> é uma ferramenta de análise técnica automatizada, desenhada para fornecer uma visão clara do mercado de Bitcoin (BTC) com base em estratégias de trading consagradas.</p>
                 <div>
-                    <h3 class="font-bold text-lg text-white">Estratégia Implementada</h3>
-                     <p>A aplicação agora utiliza a estratégia <strong>Didi Index Improved with QQE</strong>.</p>
-                    <ul class="list-disc list-inside ml-4 mt-2">
-                        <li><strong>Didi Index:</strong> Usa 3 médias móveis (curta, média e longa) para gerar sinais de cruzamento. A força do sinal é confirmada quando os cruzamentos ocorrem acima (para compras) ou abaixo (para vendas) da média central.</li>
-                        <li><strong>QQE (Qualitative Quantitative Estimation):</strong> Um filtro baseado em RSI aplicado à linha Didi para adicionar uma camada extra de confirmação aos sinais, ajudando a evitar entradas falsas.</li>
+                    <h3 class="font-bold text-lg text-white">Estratégias Implementadas</h3>
+                    <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
+                        <li><strong>Didi Index:</strong> Cruzamento de médias móveis para identificar a tendência e os pontos de entrada/saída.</li>
+                        <li><strong>Smart Money Concepts (SMC):</strong> Identifica a estrutura do mercado, zonas de liquidez e Order Blocks para seguir os movimentos do "dinheiro inteligente".</li>
+                        <li><strong>Teoria de Dow:</strong> Análise clássica da tendência baseada em topos e fundos ascendentes ou descendentes.</li>
+                        <li><strong>Ondas de Elliott (Beta):</strong> Tenta identificar padrões de impulso e correção (pullbacks) para encontrar pontos de entrada com bom risco/retorno.</li>
                     </ul>
-                    <p class="text-xs text-gray-400 mt-2">Todos os dados de mercado são fornecidos pela API da Hyperliquid. As notícias são fornecidas pela API da CryptoCompare.</p>
+                     <p class="text-xs text-gray-400 mt-2">Dados de mercado via Hyperliquid API. Notícias via CryptoCompare API.</p>
                 </div>
                 <div class="border-t border-gray-600 pt-4 mt-4">
                     <h3 class="font-bold text-lg text-white">Apoie o Desenvolvedor</h3>
-                    <p>Se esta ferramenta o ajudou nas suas análises, considere fazer uma doação para apoiar a manutenção e o desenvolvimento de novas funcionalidades. Qualquer quantia é bem-vinda!</p>
+                    <p>Se esta ferramenta o ajudou, considere fazer uma doação para apoiar a manutenção e desenvolvimento.</p>
                     <div class="mt-4 p-3 bg-gray-900 rounded-lg">
                         <label class="text-sm font-bold text-gray-400">Carteira Bitcoin (BTC):</label>
                         <div class="flex items-center justify-between mt-1 gap-4">
@@ -102,360 +102,433 @@
         </div>
     </div>
 
-
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const timeframeButtonsContainer = document.getElementById('timeframe-buttons');
-        const analyzeButton = document.getElementById('analyze-button');
-        const loader = document.getElementById('loader');
-        const errorMessage = document.getElementById('error-message');
-        const analysisResultContainer = document.getElementById('analysis-result');
-        const priceDisplay = document.getElementById('price-display');
-        const currentBtcPriceElement = document.getElementById('current-btc-price');
-        
-        const aboutButton = document.getElementById('about-button');
-        const aboutModalOverlay = document.getElementById('about-modal-overlay');
-        const closeModalButton = document.getElementById('close-modal-button');
-        const copyAddressButton = document.getElementById('copy-address-button');
-        const btcAddressInput = document.getElementById('btc-address');
+        const dom = {
+            timeframeButtonsContainer: document.getElementById('timeframe-buttons'),
+            analyzeButton: document.getElementById('analyze-button'),
+            loader: document.getElementById('loader'),
+            errorMessage: document.getElementById('error-message'),
+            analysisResultContainer: document.getElementById('analysis-result'),
+            priceDisplay: document.getElementById('price-display'),
+            currentBtcPriceElement: document.getElementById('current-btc-price'),
+            strategySelector: document.getElementById('strategy-selector'),
+            aboutButton: document.getElementById('about-button'),
+            aboutModalOverlay: document.getElementById('about-modal-overlay'),
+            closeModalButton: document.getElementById('close-modal-button'),
+            copyAddressButton: document.getElementById('copy-address-button'),
+            btcAddressInput: document.getElementById('btc-address')
+        };
 
-        let currentTimeframe = '1h'; // Default timeframe
-        const timeframes = ['5m', '15m', '1h', '4h', '1d'];
+        let state = {
+            currentTimeframe: '1h',
+            currentStrategy: 'didi_qqe',
+            timeframes: ['5m', '15m', '1h', '4h', '1d']
+        };
 
         const icons = {
             target: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>`,
-            logout: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`,
-            newspaper: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4"></path><path d="M16 2v20"></path><path d="M8 7h4"></path><path d="M8 12h4"></path><path d="M8 17h4"></path></svg>`,
             check: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M20 6 9 17l-5-5"></path></svg>`,
             x: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>`,
-            arrowUp: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>`,
-            arrowDown: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>`
+            newspaper: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4"></path><path d="M16 2v20"></path><path d="M8 7h4"></path><path d="M8 12h4"></path><path d="M8 17h4"></path></svg>`,
         };
 
         const ta = {
-            // Função para alinhar arrays de indicadores de tamanhos diferentes, pegando os últimos 'n' elementos
-            alignRight: (arrays) => {
-                const minLength = Math.min(...arrays.filter(a => Array.isArray(a)).map(arr => arr.length));
-                return arrays.map(arr => arr.slice(arr.length - minLength));
-            },
-
             sma: (data, period) => {
                 if (!data || data.length < period) return [];
                 let result = [];
                 for (let i = period - 1; i < data.length; i++) {
                     let sum = 0;
-                    for (let j = 0; j < period; j++) {
-                        sum += data[i - j];
-                    }
+                    for (let j = 0; j < period; j++) sum += data[i - j];
                     result.push(sum / period);
                 }
                 return result;
             },
-
-            ema: (data, period) => {
-                if (!data || data.length < period) return [];
-                const k = 2 / (period + 1);
-                let emaData = [data.slice(0, period).reduce((a, b) => a + b, 0) / period];
-                for (let i = period; i < data.length; i++) {
-                    emaData.push(data[i] * k + emaData[emaData.length - 1] * (1 - k));
+            getSwingPoints: (candles, lookback) => {
+                let swings = [];
+                if (!candles || candles.length < (lookback * 2 + 1)) return [];
+                for(let i = lookback; i < candles.length - lookback; i++) {
+                    const highSlice = candles.slice(i - lookback, i + lookback + 1).map(c => c.h);
+                    const lowSlice = candles.slice(i - lookback, i + lookback + 1).map(c => c.l);
+                    if (candles[i].h >= Math.max(...highSlice)) swings.push({ type: 'high', price: candles[i].h, index: i });
+                    if (candles[i].l <= Math.min(...lowSlice)) swings.push({ type: 'low', price: candles[i].l, index: i });
                 }
-                // Retorna a partir do ponto onde a EMA é calculada sobre os dados reais
-                return emaData.slice(1);
+                return swings;
             },
+        };
+        
+        const strategies = {
+            didi_qqe: (candles) => {
+                let report = { decision: "AGUARDAR", position: "NEUTRO", entryPrice: null, targetPrice: null, stopPrice: null, checklist: [] };
+                const closes = candles.map(c => c.c);
+                const swings = ta.getSwingPoints(candles, 5);
+                
+                const curtaLen = 3, mediaLen = 8, longaLen = 20;
+                
+                const maCurta = ta.sma(closes, curtaLen);
+                const maMedia = ta.sma(closes, mediaLen);
+                const maLonga = ta.sma(closes, longaLen);
+                
+                const minLength = Math.min(maCurta.length, maMedia.length, maLonga.length);
+                const [alignedCurta, alignedMedia, alignedLonga] = [maCurta, maMedia, maLonga].map(arr => arr.slice(arr.length - minLength));
 
-            // ===================================================================
-            // NOVA FUNÇÃO: QQE Line (Portado de Pine Script)
-            // ===================================================================
-            qqeLine: (src, signal_len, smoothening, qqe_factor) => {
-                if (!src || src.length < (signal_len * 2)) return [];
-                
-                const wildersper = signal_len * 2 - 1;
-                
-                // RSI MA (RsiMa)
-                const rsima = ta.ema(src, smoothening);
-                
-                // ATR of RSI (AtrRsi)
-                let atr = [];
-                for(let i = 1; i < rsima.length; i++) {
-                    atr.push(Math.abs(rsima[i] - rsima[i-1]));
-                }
+                if(alignedCurta.length < 2) return report;
 
-                // Smoothed ATR of RSI (MaAtrRsi)
-                const maatrrsi = ta.ema(atr, wildersper);
-                
-                // DAR
-                const dar_ema = ta.ema(maatrrsi, wildersper);
-                const dar = dar_ema.map(d => d * qqe_factor);
+                const didiCurta = alignedCurta.map((val, i) => val - alignedMedia[i]);
+                const didiLonga = alignedLonga.map((val, i) => val - alignedMedia[i]);
 
-                // Alinhar todos os arrays para o mesmo tamanho (o menor)
-                const [aligned_rsima, aligned_dar] = ta.alignRight([rsima, dar]);
-                
-                // Cálculo final da linha QQE (Trend line - trr)
-                let trr = [0.0];
-                for (let i = 1; i < aligned_rsima.length; i++) {
-                    const current_rsima = aligned_rsima[i];
-                    const prev_trr = trr[i-1];
-                    const current_dar = aligned_dar[i];
-                    let next_trr;
+                let lastCross = { type: 'NEUTRO', index: -1 };
+                for (let i = didiCurta.length - 1; i > 0; i--) {
+                    const cCurta = didiCurta[i], pCurta = didiCurta[i-1];
+                    const cLonga = didiLonga[i], pLonga = didiLonga[i-1];
+                    const in_buy_zone = cCurta > 0 && cLonga > 0;
+                    const in_sell_zone = cCurta < 0 && cLonga < 0;
 
-                    if (current_rsima > prev_trr) {
-                        next_trr = (current_rsima - current_dar) < prev_trr ? prev_trr : (current_rsima - current_dar);
-                    } else {
-                        next_trr = (current_rsima + current_dar) > prev_trr ? prev_trr : (current_rsima + current_dar);
+                    if (pCurta <= pLonga && cCurta > cLonga && in_buy_zone) {
+                        lastCross = { type: 'COMPRA', index: i };
+                        break;
                     }
-                    trr.push(next_trr);
+                    if (pCurta >= pLonga && cCurta < cLonga && in_sell_zone) {
+                        lastCross = { type: 'VENDA', index: i };
+                        break;
+                    }
                 }
-                return trr;
-            }
-        };
-        
-        // ===================================================================
-        // FUNÇÃO DE ANÁLISE ATUALIZADA
-        // ===================================================================
-        const generateAnalysis = (dataMain, news) => {
-            const analysis = { decision: "AGUARDAR", exitDecision: "MANTER", entryChecklist: [], exitChecklist: [], news: [] };
-            const closes = dataMain.map(c => parseFloat(c.c));
 
-            // Parâmetros da Estratégia Didi+QQE
-            const curtaLen = 3, mediaLen = 8, longaLen = 20;
-            const signal_len = 14, smoothening = 5, qqe_factor = 4.236;
+                report.position = lastCross.type === 'NEUTRO' ? 'NEUTRO' : lastCross.type === 'COMPRA' ? 'COMPRADO' : 'VENDIDO';
 
-            // 1. Calcular Médias Móveis do Didi
-            const maCurta = ta.sma(closes, curtaLen);
-            const maMedia = ta.sma(closes, mediaLen);
-            const maLonga = ta.sma(closes, longaLen);
-            
-            // 2. Alinhar MAs e calcular Linhas Didi (relativas à Média)
-            const [alignedCurta, alignedMedia, alignedLonga] = ta.alignRight([maCurta, maMedia, maLonga]);
-            if(alignedCurta.length === 0) return analysis; // Check for empty data
+                const isCurrentCross = lastCross.index === didiCurta.length - 1;
+                if (isCurrentCross) {
+                    report.decision = lastCross.type;
+                } else if (report.position !== 'NEUTRO') {
+                    report.decision = 'MANTER';
+                }
 
-            const didiCurta = alignedCurta.map((val, i) => val - alignedMedia[i]);
-            const didiLonga = alignedLonga.map((val, i) => val - alignedMedia[i]);
+                if (report.position !== 'NEUTRO') {
+                    const entryCandleIndex = candles.length - (didiCurta.length - lastCross.index);
+                    if(entryCandleIndex >= 0 && entryCandleIndex < candles.length) {
+                        const entryPrice = candles[entryCandleIndex].c;
+                        report.entryPrice = entryPrice;
+                        if(report.position === 'COMPRADO') {
+                            let stopCandle = swings.filter(s => s.type === 'low' && s.index < entryCandleIndex).pop();
+                            if(stopCandle) {
+                                report.stopPrice = stopCandle.price;
+                                report.targetPrice = entryPrice + (entryPrice - stopCandle.price) * 1.5;
+                            }
+                        } else { // VENDIDO
+                             let stopCandle = swings.filter(s => s.type === 'high' && s.index < entryCandleIndex).pop();
+                            if(stopCandle) {
+                                report.stopPrice = stopCandle.price;
+                                report.targetPrice = entryPrice - (stopCandle.price - entryPrice) * 1.5;
+                            }
+                        }
+                    }
+                }
 
-            // 3. Calcular a linha QQE sobre a Didi Curta
-            const qqe_line = ta.qqeLine(didiCurta, signal_len, smoothening, qqe_factor);
-            const [final_didiCurta, final_didiLonga, final_qqe] = ta.alignRight([didiCurta, didiLonga, qqe_line]);
-
-            // 4. Pegar os últimos 2 valores para checar cruzamentos
-            const last = final_didiCurta.length - 1;
-            if (last < 1) return analysis; // Precisa de pelo menos 2 pontos
-
-            const cCurta = final_didiCurta[last], pCurta = final_didiCurta[last-1];
-            const cLonga = final_didiLonga[last], pLonga = final_didiLonga[last-1];
-            const cQqe = final_qqe[last];
-
-            // 5. Verificar condições da estratégia
-            const cross_long = pCurta <= pLonga && cCurta > cLonga;
-            const cross_short = pCurta >= pLonga && cCurta < cLonga;
-            
-            const in_buy_zone = cCurta > 0 && cLonga > 0;
-            const in_sell_zone = cCurta < 0 && cLonga < 0;
-
-            const qqe_confirm_buy = cCurta > cQqe;
-            const qqe_confirm_sell = cCurta < cQqe;
-
-            const final_buy_signal = cross_long && in_buy_zone;
-            const final_sell_signal = cross_short && in_sell_zone;
-            
-            // Decisão de Entrada
-            if (final_buy_signal) {
-                analysis.decision = "COMPRA";
-            } else if (final_sell_signal) {
-                analysis.decision = "VENDA";
-            } else {
-                analysis.decision = "AGUARDAR";
-            }
-
-            // Decisão de Saída (cruzamento oposto, sem checagem de zona)
-            if (cross_short && analysis.decision !== "VENDA") {
-                analysis.exitDecision = "AVALIAR SAÍDA (COMPRA)";
-            } else if (cross_long && analysis.decision !== "COMPRA") {
-                analysis.exitDecision = "AVALIAR SAÍDA (VENDA)";
-            } else {
-                analysis.exitDecision = "MANTER";
-            }
-            
-            analysis.entryChecklist = [
-                { name: "Cruzamento Didi", active: cross_long || cross_short, value: cross_long ? "Alta" : (cross_short ? "Baixa" : "Nenhum") },
-                { name: "Zona Didi (Compra)", active: in_buy_zone, value: "Acima de Zero" },
-                { name: "Zona Didi (Venda)", active: in_sell_zone, value: "Abaixo de Zero" },
-                { name: "Confirmação QQE", active: qqe_confirm_buy, value: qqe_confirm_buy ? "Didi > QQE" : "Didi < QQE"}
-            ];
-
-            analysis.exitChecklist = [
-                { name: "Sinal de Saída (Compra)", active: cross_short, value: cross_short ? "Cruzamento de Baixa" : "Aguardando" },
-                { name: "Sinal de Saída (Venda)", active: cross_long, value: cross_long ? "Cruzamento de Alta" : "Aguardando" },
-                { name: "Posição Didi vs QQE", active: true, value: cCurta > cQqe ? "Positivo" : "Negativo" }
-            ];
-            
-            analysis.news = news;
-            return analysis;
-        };
-        
-        function renderUI(report, currentPrice) {
-            const { decision, entryChecklist, exitDecision, exitChecklist, news } = report;
-
-            currentBtcPriceElement.textContent = '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            priceDisplay.style.display = 'flex';
-
-            const decisionStyles = { COMPRA: "bg-green-500 border-green-400", VENDA: "bg-red-500 border-red-400", AGUARDAR: "bg-gray-600 border-gray-500" };
-            const exitDecisionStyles = { "AVALIAR SAÍDA (COMPRA)": "bg-yellow-500 border-yellow-400", "AVALIAR SAÍDA (VENDA)": "bg-yellow-500 border-yellow-400", "MANTER": "bg-gray-600 border-gray-500" };
-            
-            const createChecklistHTML = (list) => list.map(item => {
-                const iconHTML = item.active ? icons.check : icons.x;
-                const bgColor = item.active ? 'bg-green-500' : 'bg-red-500';
+                report.checklist = [
+                    { name: "Último Cruzamento Válido", active: lastCross.type !== 'NEUTRO', value: `${lastCross.type} (${lastCross.index > -1 ? didiCurta.length - 1 - lastCross.index : 'N/A'} candles atrás)` },
+                    { name: "Posição Baseada no Hist.", active: report.position !== 'NEUTRO', value: report.position }
+                ];
                 
-                return `
+                return report;
+            },
+            smc: (candles) => {
+                let report = { decision: "AGUARDAR", position: 'NEUTRO', entryPrice: null, targetPrice: null, stopPrice: null, checklist: [] };
+                const swings = ta.getSwingPoints(candles, 3);
+                if (swings.length < 4) return report;
+                
+                let lastStructure = { type: 'NEUTRO', high: null, low: null, prevHigh: null, prevLow: null };
+
+                for (let i = swings.length - 1; i >= 3; i--) {
+                    const lastSwings = swings.slice(0, i + 1);
+                    const highs = lastSwings.filter(s => s.type === 'high');
+                    const lows = lastSwings.filter(s => s.type === 'low');
+                    if(highs.length < 2 || lows.length < 2) continue;
+
+                    const lastHigh = highs[highs.length - 1];
+                    const prevHigh = highs[highs.length - 2];
+                    const lastLow = lows[lows.length - 1];
+                    const prevLow = lows[lows.length - 2];
+                    
+                    if (lastHigh.price > prevHigh.price && lastLow.price > prevLow.price) {
+                        lastStructure = { type: 'COMPRA', high: lastHigh, low: lastLow, prevHigh: prevHigh, prevLow: prevLow, index: i};
+                        break;
+                    }
+                    if (lastLow.price < prevLow.price && lastHigh.price < prevHigh.price) {
+                        lastStructure = { type: 'VENDA', high: lastHigh, low: lastLow, prevHigh: prevHigh, prevLow: prevLow, index: i};
+                        break;
+                    }
+                }
+                
+                if (lastStructure.type !== 'NEUTRO') {
+                    const isCurrentStructure = lastStructure.index === swings.length - 1;
+                    report.decision = isCurrentStructure ? lastStructure.type : 'MANTER';
+                    report.position = lastStructure.type === 'COMPRA' ? 'COMPRADO' : 'VENDIDO';
+                    
+                    if (report.position === 'COMPRADO') {
+                        report.entryPrice = lastStructure.low.price;
+                        report.stopPrice = lastStructure.prevLow.price;
+                        report.targetPrice = lastStructure.high.price + (lastStructure.high.price - lastStructure.low.price);
+                    } else { // VENDIDO
+                        report.entryPrice = lastStructure.high.price;
+                        report.stopPrice = lastStructure.prevHigh.price;
+                        report.targetPrice = lastStructure.low.price - (lastStructure.high.price - lastStructure.low.price);
+                    }
+                }
+
+                report.checklist = [
+                    {name: "Última Estrutura Válida", active: lastStructure.type !== 'NEUTRO', value: lastStructure.type === 'COMPRA' ? "Alta (HH, HL)" : (lastStructure.type === 'VENDA' ? "Baixa (LL, LH)" : "Consolidado") },
+                    {name: "Posição Baseada na Estrutura", active: report.position !== 'NEUTRO', value: report.position }
+                ];
+                
+                return report;
+            },
+            dow: (candles) => {
+                 let report = { decision: "AGUARDAR", position: 'NEUTRO', entryPrice: null, targetPrice: null, stopPrice: null, checklist: [] };
+                const swings = ta.getSwingPoints(candles, 5);
+                if (swings.length < 4) return report;
+
+                let lastTrend = { type: 'NEUTRO', high: null, low: null, index: -1 };
+
+                for (let i = swings.length - 1; i >= 3; i--) {
+                    const lastSwings = swings.slice(0, i + 1);
+                    const highs = lastSwings.filter(s => s.type === 'high');
+                    const lows = lastSwings.filter(s => s.type === 'low');
+                    if(highs.length < 2 || lows.length < 2) continue;
+                    
+                    const lastHigh = highs[highs.length - 1];
+                    const prevHigh = highs[highs.length - 2];
+                    const lastLow = lows[lows.length - 1];
+                    const prevLow = lows[lows.length - 2];
+                    
+                    if (lastHigh.price > prevHigh.price && lastLow.price > prevLow.price) {
+                        lastTrend = { type: 'COMPRA', high: lastHigh, low: lastLow, index: i };
+                        break;
+                    }
+                    if (lastHigh.price < prevHigh.price && lastLow.price < prevLow.price) {
+                        lastTrend = { type: 'VENDA', high: lastHigh, low: lastLow, index: i };
+                        break;
+                    }
+                }
+
+                if(lastTrend.type !== 'NEUTRO') {
+                    const isCurrent = lastTrend.index === swings.length - 1;
+                    report.decision = isCurrent ? lastTrend.type : 'MANTER';
+                    report.position = lastTrend.type === 'COMPRA' ? 'COMPRADO' : 'VENDIDO';
+
+                    if (report.position === 'COMPRADO') {
+                        report.entryPrice = lastTrend.high.price;
+                        report.stopPrice = lastTrend.low.price;
+                        report.targetPrice = lastTrend.high.price + (lastTrend.high.price - lastTrend.low.price);
+                    } else { // VENDIDO
+                        report.entryPrice = lastTrend.low.price;
+                        report.stopPrice = lastTrend.high.price;
+                        report.targetPrice = lastTrend.low.price - (lastTrend.high.price - lastTrend.low.price);
+                    }
+                }
+
+                report.checklist = [
+                    { name: "Última Tendência Dow", active: lastTrend.type !== 'NEUTRO', value: lastTrend.type === 'COMPRA' ? "Alta" : "Baixa" },
+                    { name: "Posição Baseada na Tend.", active: report.position !== 'NEUTRO', value: report.position }
+                ];
+                
+                return report;
+            },
+            elliott: (candles) => {
+                let report = { decision: "AGUARDAR", position: 'NEUTRO', entryPrice: null, targetPrice: null, stopPrice: null, checklist: [] };
+                const swings = ta.getSwingPoints(candles, 3);
+                if (swings.length < 3) return report;
+                
+                let lastSetup = { type: 'NEUTRO', index: -1, high: null, low: null, prevLow: null, prevHigh: null };
+                
+                for (let i = swings.length - 1; i >= 2; i--) {
+                    const currentSwing = swings[i];
+                    if (currentSwing.type === 'low') {
+                        const prevHigh = swings.filter(s => s.type === 'high' && s.index < currentSwing.index).pop();
+                        const prevLow = swings.filter(s => s.type === 'low' && s.index < prevHigh?.index).pop();
+                        if (prevHigh && prevLow && currentSwing.price > prevLow.price) {
+                            lastSetup = { type: 'COMPRA', index: i, high: prevHigh, low: currentSwing, prevLow: prevLow };
+                            break;
+                        }
+                    } else { // currentSwing.type === 'high'
+                        const prevLow = swings.filter(s => s.type === 'low' && s.index < currentSwing.index).pop();
+                        const prevHigh = swings.filter(s => s.type === 'high' && s.index < prevLow?.index).pop();
+                        if (prevLow && prevHigh && currentSwing.price < prevHigh.price) {
+                            lastSetup = { type: 'VENDA', index: i, high: currentSwing, low: prevLow, prevHigh: prevHigh };
+                            break;
+                        }
+                    }
+                }
+                
+                if (lastSetup.type !== 'NEUTRO') {
+                    const isCurrent = lastSetup.index === swings.length -1;
+                    report.decision = isCurrent ? lastSetup.type : 'MANTER';
+                    report.position = lastSetup.type;
+
+                    if (report.position === 'COMPRA') {
+                        report.entryPrice = lastSetup.low.price;
+                        report.stopPrice = lastSetup.prevLow.price;
+                        report.targetPrice = lastSetup.high.price + (lastSetup.high.price - lastSetup.low.price);
+                    } else {
+                        report.entryPrice = lastSetup.high.price;
+                        report.stopPrice = lastSetup.prevHigh.price;
+                        report.targetPrice = lastSetup.low.price - (lastSetup.high.price - lastSetup.low.price);
+                    }
+                }
+
+                report.checklist = [
+                    {name: "Último Setup de Pullback", active: lastSetup.type !== 'NEUTRO', value: lastSetup.type},
+                    {name: "Posição Baseada no Setup", active: report.position !== 'NEUTRO', value: report.position}
+                ];
+                return report;
+            },
+        };
+
+        function renderUI(report, currentPrice, displayDecision) {
+            const { entryPrice, targetPrice, stopPrice, position, checklist } = report;
+
+            dom.currentBtcPriceElement.textContent = '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            dom.priceDisplay.style.display = 'flex';
+
+            const decisionStyles = { COMPRA: "bg-green-600 border-green-400", VENDA: "bg-red-600 border-red-400", AGUARDAR: "bg-gray-600 border-gray-500", MANTER: "bg-blue-600 border-blue-400" };
+            const posStyles = { COMPRADO: "text-green-400", VENDIDO: "text-red-400", NEUTRO: "text-gray-400" };
+            const mainDecision = displayDecision.split(' ')[0];
+
+            const createChecklistHTML = (list) => (list || []).map(item => `
                 <li class="flex items-center justify-between p-3 bg-gray-800/60 rounded-md">
                     <div class="flex items-center">
-                         <div class="w-5 h-5 rounded-full flex items-center justify-center mr-3 ${bgColor}">${iconHTML}</div>
+                         <div class="w-5 h-5 rounded-full flex items-center justify-center mr-3 ${item.active ? 'bg-green-500' : 'bg-red-500'}">${item.active ? icons.check : icons.x}</div>
                          <span class="text-white">${item.name}</span>
                     </div>
-                    <span class="text-gray-400 text-xs">${item.value}</span>
-                </li>`;
-            }).join('');
-            
-            analysisResultContainer.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="text-center p-4 sm:p-6 rounded-lg border-2 shadow-lg ${decisionStyles[decision]}">
-                        <h2 class="text-lg sm:text-xl font-semibold text-white mb-1">SINAL DE ENTRADA</h2>
-                        <p class="text-4xl sm:text-5xl font-bold text-white tracking-wider">${decision}</p>
-                    </div>
-                    <div class="text-center p-4 sm:p-6 rounded-lg border-2 shadow-lg ${exitDecisionStyles[exitDecision] || 'bg-gray-600 border-gray-500'}">
-                        <h2 class="text-lg sm:text-xl font-semibold text-white mb-1">SINAL DE SAÍDA / POSIÇÃO</h2>
-                        <p class="text-2xl sm:text-3xl font-bold text-white tracking-wider">${exitDecision}</p>
-                    </div>
-                </div>
+                    <span class="text-gray-400 text-xs font-mono">${item.value}</span>
+                </li>`).join('');
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            dom.analysisResultContainer.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="text-center p-6 rounded-lg border-2 shadow-lg ${decisionStyles[mainDecision] || decisionStyles['AGUARDAR']}">
+                        <h2 class="text-xl font-semibold text-white mb-1">SINAL DE AÇÃO</h2>
+                        <p class="text-5xl font-bold text-white tracking-wider">${displayDecision}</p>
+                         <p class="text-lg font-semibold mt-2 ${posStyles[position]}">Posição Atual: ${position}</p>
+                    </div>
+                    <div class="p-6 rounded-lg bg-gray-900/70 border border-gray-700 space-y-3">
+                         <h2 class="text-xl font-semibold text-cyan-400 mb-2 text-center">PLANO DE TRADE</h2>
+                         <div class="flex justify-between items-center"><span class="text-gray-400">Entrada:</span><span class="font-mono text-lg text-white">${entryPrice ? entryPrice.toFixed(2) : 'N/A'}</span></div>
+                         <div class="flex justify-between items-center"><span class="text-gray-400">Alvo:</span><span class="font-mono text-lg text-green-400">${targetPrice ? targetPrice.toFixed(2) : 'N/A'}</span></div>
+                         <div class="flex justify-between items-center"><span class="text-gray-400">Stop:</span><span class="font-mono text-lg text-red-400">${stopPrice ? stopPrice.toFixed(2) : 'N/A'}</span></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
                     <section>
-                        <h3 class="flex items-center text-xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">${icons.target}<span class="ml-2">Checklist de Entrada (${currentTimeframe})</span></h3>
-                        <ul class="space-y-2">${createChecklistHTML(entryChecklist)}</ul>
-                    </section>
-                    <section>
-                        <h3 class="flex items-center text-xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">${icons.logout}<span class="ml-2">Checklist de Saída (${currentTimeframe})</span></h3>
-                        <ul class="space-y-2">${createChecklistHTML(exitChecklist)}</ul>
+                        <h3 class="flex items-center text-xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">${icons.target}<span class="ml-2">Checklist da Estratégia (${dom.strategySelector.options[dom.strategySelector.selectedIndex].text})</span></h3>
+                        <ul class="space-y-2">${createChecklistHTML(checklist)}</ul>
                     </section>
                 </div>
-                
-                <section class="mt-6">
-                     <h3 class="flex items-center text-xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">${icons.newspaper}<span class="ml-2">NOTÍCIAS E SENTIMENTO</span></h3>
+                <section class="mt-8">
+                     <h3 class="flex items-center text-xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">${icons.newspaper}<span class="ml-2">Notícias e Sentimento</span></h3>
                      <ul id="news-list" class="list-disc list-inside space-y-1 text-gray-400"></ul>
                 </section>
-
                 <div class="text-center mt-8 text-xs text-gray-500">
-                    <p>Aviso: Esta é uma análise automatizada e não constitui uma recomendação de investimento. Utilize-a como um complemento à sua própria estratégia.</p>
+                    <p>Aviso: Esta é uma análise automatizada e não constitui uma recomendação de investimento.</p>
                 </div>
             `;
+
             const newsList = document.getElementById('news-list');
-            if(news && news.length > 0){
-                newsList.innerHTML = news.map(item => `<li><a href="${item.url}" target="_blank" class="hover:text-cyan-400">${item.title}</a></li>`).join('');
+            if(report.news && report.news.length > 0){
+                newsList.innerHTML = report.news.map(item => `<li><a href="${item.url}" target="_blank" class="hover:text-cyan-400">${item.title}</a></li>`).join('');
             } else {
                 newsList.innerHTML = `<li>Não foi possível carregar as notícias.</li>`;
             }
-
-            analysisResultContainer.classList.add('animate-fade-in');
+            dom.analysisResultContainer.classList.add('animate-fade-in');
         }
 
         async function handleAnalyze() {
-            loader.style.display = 'block';
-            errorMessage.style.display = 'none';
-            analysisResultContainer.style.display = 'none';
-            analysisResultContainer.classList.remove('animate-fade-in');
-            analyzeButton.disabled = true;
+            dom.loader.style.display = 'block';
+            dom.errorMessage.style.display = 'none';
+            dom.analysisResultContainer.style.display = 'none';
+            dom.analysisResultContainer.classList.remove('animate-fade-in');
+            dom.analyzeButton.disabled = true;
 
             try {
                 let newsData = [];
                 try {
                     const newsResponse = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=PT&categories=BTC,ETH,CRYPTO');
-                    if(newsResponse.ok) {
-                        const newsJson = await newsResponse.json();
-                        newsData = newsJson.Data.slice(0, 4);
-                    }
-                } catch (newsError) {
-                    console.error("Falha ao buscar notícias:", newsError);
-                }
+                    if(newsResponse.ok) newsData = (await newsResponse.json()).Data.slice(0, 4);
+                } catch (e) { console.error("Falha ao buscar notícias:", e); }
 
                 const now = Date.now();
                 const multipliers = { '5m': 10, '15m': 30, '1h': 60, '4h': 120, '1d': 500 };
-                const daysToFetch = multipliers[currentTimeframe] || 30;
+                const daysToFetch = multipliers[state.currentTimeframe] || 30;
                 const startTime = now - (daysToFetch * 24 * 60 * 60 * 1000);
-                const req = { "type": "candleSnapshot", "req": { "coin": "BTC", "interval": currentTimeframe, "startTime": startTime, "endTime": now } };
+                const req = { "type": "candleSnapshot", "req": { "coin": "BTC", "interval": state.currentTimeframe, "startTime": startTime, "endTime": now } };
                 
                 const res = await fetch('https://api.hyperliquid.xyz/info', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
-                if (!res.ok) throw new Error(`Falha na API da Hyperliquid (Intervalo: ${currentTimeframe}).`);
+                if (!res.ok) throw new Error(`Falha na API da Hyperliquid.`);
                 
-                const data = (await res.json()).slice(-500);
-                if (!Array.isArray(data) || data.length < 50) {
-                    throw new Error(`Dados históricos insuficientes para ${currentTimeframe}. Recebidos: ${data.length} candles.`);
-                }
+                const data = (await res.json()).slice(-500).map(c => ({ o: parseFloat(c.o), h: parseFloat(c.h), l: parseFloat(c.l), c: parseFloat(c.c) }));
+                if (!Array.isArray(data) || data.length < 50) throw new Error(`Dados históricos insuficientes.`);
                 
-                const currentPrice = parseFloat(data[data.length - 1].c);
-                const report = generateAnalysis(data, newsData);
-                renderUI(report, currentPrice);
-                analysisResultContainer.style.display = 'block';
+                const analysisFunction = strategies[state.currentStrategy];
+                if (!analysisFunction) throw new Error("Estratégia selecionada é inválida.");
+                
+                const report = analysisFunction(data);
+                report.news = newsData;
+                
+                const currentPrice = data[data.length - 1].c;
+                renderUI(report, currentPrice, report.decision);
+
+                dom.analysisResultContainer.style.display = 'block';
 
             } catch (e) {
-                errorMessage.textContent = e.message || 'Ocorreu um erro desconhecido.';
-                errorMessage.style.display = 'block';
+                dom.errorMessage.textContent = `${e.message} (Timeframe: ${state.currentTimeframe})`;
+                dom.errorMessage.style.display = 'block';
             } finally {
-                loader.style.display = 'none';
-                analyzeButton.disabled = false;
+                dom.loader.style.display = 'none';
+                dom.analyzeButton.disabled = false;
             }
         }
         
         function setup() {
-            timeframeButtonsContainer.innerHTML = timeframes.map(tf => `
-                <button data-tf="${tf}" class="timeframe-btn px-3 py-1 rounded-md text-sm font-bold transition-colors ${currentTimeframe === tf ? 'bg-cyan-500 text-white' : 'text-gray-400 hover:bg-gray-700'}">
+            dom.timeframeButtonsContainer.innerHTML = state.timeframes.map(tf => `
+                <button data-tf="${tf}" class="timeframe-btn px-3 py-1 rounded-md text-sm font-bold transition-colors ${state.currentTimeframe === tf ? 'bg-cyan-500 text-white' : 'text-gray-400 hover:bg-gray-700'}">
                     ${tf}
                 </button>
             `).join('');
 
             document.querySelectorAll('.timeframe-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    currentTimeframe = button.dataset.tf;
+                button.addEventListener('click', (e) => {
+                    state.currentTimeframe = e.currentTarget.dataset.tf;
                     document.querySelectorAll('.timeframe-btn').forEach(btn => {
                         btn.classList.remove('bg-cyan-500', 'text-white');
                         btn.classList.add('text-gray-400', 'hover:bg-gray-700');
                     });
-                    button.classList.add('bg-cyan-500', 'text-white');
-                    button.classList.remove('text-gray-400', 'hover:bg-gray-700');
+                    e.currentTarget.classList.add('bg-cyan-500', 'text-white');
+                    e.currentTarget.classList.remove('text-gray-400', 'hover:bg-gray-700');
                     handleAnalyze();
                 });
             });
 
-            analyzeButton.addEventListener('click', handleAnalyze);
+            dom.strategySelector.addEventListener('change', (e) => {
+                state.currentStrategy = e.target.value;
+                handleAnalyze();
+            });
+
+            dom.analyzeButton.addEventListener('click', handleAnalyze);
             
-            // Modal Logic
-            aboutButton.addEventListener('click', () => {
-                aboutModalOverlay.style.display = 'flex';
+            dom.aboutButton.addEventListener('click', () => dom.aboutModalOverlay.style.display = 'flex');
+            dom.closeModalButton.addEventListener('click', () => dom.aboutModalOverlay.style.display = 'none');
+            dom.aboutModalOverlay.addEventListener('click', (e) => {
+                if (e.target === dom.aboutModalOverlay) dom.aboutModalOverlay.style.display = 'none';
             });
-            closeModalButton.addEventListener('click', () => {
-                aboutModalOverlay.style.display = 'none';
-            });
-            aboutModalOverlay.addEventListener('click', (e) => {
-                if (e.target === aboutModalOverlay) {
-                    aboutModalOverlay.style.display = 'none';
-                }
-            });
-            copyAddressButton.addEventListener('click', () => {
+            dom.copyAddressButton.addEventListener('click', () => {
                 try {
-                    // Fallback para ambientes sem navigator.clipboard
                     const textArea = document.createElement("textarea");
-                    textArea.value = btcAddressInput.value;
+                    textArea.value = dom.btcAddressInput.value;
                     document.body.appendChild(textArea);
-                    textArea.focus();
                     textArea.select();
                     document.execCommand('copy');
                     document.body.removeChild(textArea);
-                    
-                    copyAddressButton.textContent = 'Copiado!';
-                    setTimeout(() => {
-                        copyAddressButton.textContent = 'Copiar';
-                    }, 2000);
-                } catch (err) {
-                    console.error('Falha ao copiar:', err);
-                }
+                    dom.copyAddressButton.textContent = 'Copiado!';
+                    setTimeout(() => { dom.copyAddressButton.textContent = 'Copiar'; }, 2000);
+                } catch (err) { console.error('Falha ao copiar:', err); }
             });
 
             handleAnalyze();
