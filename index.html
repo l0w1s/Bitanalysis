@@ -1,33 +1,10 @@
-Excelente\! Recebi o código do seu aplicativo "Sir BAP AI".
-
-Analisei a estrutura e a lógica. É uma página única (single-page application) que busca dados da API da Hyperliquid e da CryptoCompare, processa esses dados com funções de análise técnica em JavaScript (`ta` object) e depois renderiza o resultado na tela.
-
-O "cérebro" da sua aplicação atual está na função `generateAnalysis`, que hoje combina DMI, ADX, Bandas de Bollinger e uma versão do Didi Index para gerar os sinais de "COMPRA" e "VENDA".
-
-O seu pedido é para **substituir essa lógica de análise atual** pela lógica completa do script "Didi Index Improved with QQE" que você me enviou.
-
-Com certeza\! Farei a adaptação. O processo será o seguinte:
-
-1.  **Portar os Indicadores:** Vou traduzir as funções de cálculo do `Didi Index` e do `QQE` de Pine Script para JavaScript, integrando-as ao seu objeto `ta`.
-2.  **Reescrever a Lógica de Decisão:** Vou alterar a função `generateAnalysis` para usar os novos indicadores. O sinal principal virá do cruzamento das linhas Didi (`curta` e `longa`) quando ambas estiverem na zona correta (acima ou abaixo de zero), exatamente como no script.
-3.  **Criar um Novo Checklist:** O checklist de entrada será atualizado para refletir as condições da nova estratégia (Cruzamento Didi, Zona Didi, Confirmação QQE, etc.).
-4.  **Adaptar os Sinais de Saída:** O script que você enviou foca em sinais de entrada. Vou adaptar a seção "Checklist de Saída" para usar um sinal lógico da nova estratégia, como um cruzamento contrário das linhas Didi, que é uma abordagem comum para fechar posições.
-
-Abaixo está o código completo do seu arquivo `index.html` com a nova estratégia já integrada e adaptada. Você pode simplesmente substituir todo o conteúdo do seu arquivo por este.
-
------
-
-### Código do Aplicativo Atualizado com a Nova Estratégia
-
-Copie e cole o código abaixo para substituir completamente o seu arquivo `index.html`.
-
-```html
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sir BAP AI - Análise de BTC</title>
+    <!-- Tailwind CSS para Estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body {
@@ -56,6 +33,7 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
                     Sir BAP AI
                 </h1>
             </div>
+            <!-- Botão Sobre/Doar -->
             <button id="about-button" class="absolute top-0 right-0 bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                 Sobre / Doar
             </button>
@@ -93,6 +71,7 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
         <div id="analysis-result" class="bg-gray-800/30 rounded-lg p-6" style="display: none;"></div>
     </div>
     
+    <!-- Modal Sobre/Doar -->
     <div id="about-modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4" style="display: none;">
         <div id="about-modal-content" class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl border border-gray-600 relative modal-enter">
             <button id="close-modal-button" class="absolute top-3 right-3 text-gray-400 hover:text-white">&times;</button>
@@ -156,7 +135,7 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
         const ta = {
             // Função para alinhar arrays de indicadores de tamanhos diferentes, pegando os últimos 'n' elementos
             alignRight: (arrays) => {
-                const minLength = Math.min(...arrays.map(arr => arr.length));
+                const minLength = Math.min(...arrays.filter(a => Array.isArray(a)).map(arr => arr.length));
                 return arrays.map(arr => arr.slice(arr.length - minLength));
             },
 
@@ -234,7 +213,7 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
         // FUNÇÃO DE ANÁLISE ATUALIZADA
         // ===================================================================
         const generateAnalysis = (dataMain, news) => {
-            const analysis = {};
+            const analysis = { decision: "AGUARDAR", exitDecision: "MANTER", entryChecklist: [], exitChecklist: [], news: [] };
             const closes = dataMain.map(c => parseFloat(c.c));
 
             // Parâmetros da Estratégia Didi+QQE
@@ -248,6 +227,8 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
             
             // 2. Alinhar MAs e calcular Linhas Didi (relativas à Média)
             const [alignedCurta, alignedMedia, alignedLonga] = ta.alignRight([maCurta, maMedia, maLonga]);
+            if(alignedCurta.length === 0) return analysis; // Check for empty data
+
             const didiCurta = alignedCurta.map((val, i) => val - alignedMedia[i]);
             const didiLonga = alignedLonga.map((val, i) => val - alignedMedia[i]);
 
@@ -257,13 +238,7 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
 
             // 4. Pegar os últimos 2 valores para checar cruzamentos
             const last = final_didiCurta.length - 1;
-            if (last < 1) { // Precisa de pelo menos 2 pontos para checar cruzamento
-                analysis.decision = "AGUARDAR";
-                analysis.exitDecision = "MANTER";
-                analysis.entryChecklist = [];
-                analysis.exitChecklist = [];
-                return analysis;
-            }
+            if (last < 1) return analysis; // Precisa de pelo menos 2 pontos
 
             const cCurta = final_didiCurta[last], pCurta = final_didiCurta[last-1];
             const cLonga = final_didiLonga[last], pLonga = final_didiLonga[last-1];
@@ -292,9 +267,9 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
             }
 
             // Decisão de Saída (cruzamento oposto, sem checagem de zona)
-            if (cross_short) {
+            if (cross_short && analysis.decision !== "VENDA") {
                 analysis.exitDecision = "AVALIAR SAÍDA (COMPRA)";
-            } else if (cross_long) {
+            } else if (cross_long && analysis.decision !== "COMPRA") {
                 analysis.exitDecision = "AVALIAR SAÍDA (VENDA)";
             } else {
                 analysis.exitDecision = "MANTER";
@@ -304,13 +279,13 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
                 { name: "Cruzamento Didi", active: cross_long || cross_short, value: cross_long ? "Alta" : (cross_short ? "Baixa" : "Nenhum") },
                 { name: "Zona Didi (Compra)", active: in_buy_zone, value: "Acima de Zero" },
                 { name: "Zona Didi (Venda)", active: in_sell_zone, value: "Abaixo de Zero" },
-                { name: "Confirmação QQE", active: qqe_confirm_buy || qqe_confirm_sell, value: qqe_confirm_buy ? "Acima da Linha" : "Abaixo da Linha"}
+                { name: "Confirmação QQE", active: qqe_confirm_buy, value: qqe_confirm_buy ? "Didi > QQE" : "Didi < QQE"}
             ];
 
             analysis.exitChecklist = [
-                { name: "Cruzamento Didi (Saída Compra)", active: cross_short, value: cross_short ? "Sinalizado" : "Aguardando" },
-                { name: "Cruzamento Didi (Saída Venda)", active: cross_long, value: cross_long ? "Sinalizado" : "Aguardando" },
-                { name: "Posição Didi vs QQE", active: true, value: cCurta > cQqe ? "Didi > QQE" : "Didi < QQE" }
+                { name: "Sinal de Saída (Compra)", active: cross_short, value: cross_short ? "Cruzamento de Baixa" : "Aguardando" },
+                { name: "Sinal de Saída (Venda)", active: cross_long, value: cross_long ? "Cruzamento de Alta" : "Aguardando" },
+                { name: "Posição Didi vs QQE", active: true, value: cCurta > cQqe ? "Positivo" : "Negativo" }
             ];
             
             analysis.news = news;
@@ -464,13 +439,23 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
                 }
             });
             copyAddressButton.addEventListener('click', () => {
-                const address = btcAddressInput.value;
-                navigator.clipboard.writeText(address).then(() => {
+                try {
+                    // Fallback para ambientes sem navigator.clipboard
+                    const textArea = document.createElement("textarea");
+                    textArea.value = btcAddressInput.value;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
                     copyAddressButton.textContent = 'Copiado!';
                     setTimeout(() => {
                         copyAddressButton.textContent = 'Copiar';
                     }, 2000);
-                });
+                } catch (err) {
+                    console.error('Falha ao copiar:', err);
+                }
             });
 
             handleAnalyze();
@@ -481,4 +466,3 @@ Copie e cole o código abaixo para substituir completamente o seu arquivo `index
     </script>
 </body>
 </html>
-```
