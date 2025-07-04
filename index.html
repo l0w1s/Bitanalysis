@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sir BAP AI - Análise SMC v2.1</title>
+    <title>Sir BAP AI - Análise SMC v2.2</title>
     <!-- Tailwind CSS para Estilização Rápida -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -41,9 +41,11 @@
             <div class="flex items-center gap-3">
                 <label for="timeframe-selector" class="font-semibold text-gray-300">Tempo Gráfico:</label>
                 <select id="timeframe-selector" class="bg-gray-700 text-white rounded-md p-2 text-sm font-bold border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
-                    <option value="1h">1 Hora</option>
+                    <option value="15m">15 Minutos</option>
+                    <option value="30m">30 Minutos</option>
+                    <option value="1h" selected>1 Hora</option>
                     <option value="4h">4 Horas</option>
-                    <option value="1d" selected>Diário</option>
+                    <option value="1d">Diário</option>
                 </select>
             </div>
             <div id="price-display" class="flex items-center justify-center text-xl font-bold text-white" style="display: none;">
@@ -113,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             const style = biasStyles[bias] || biasStyles.LATERAL;
             
-            // **NOVO**: Formata o texto do evento com o preço da quebra
             const eventText = lastEvent 
                 ? `<span class="text-xl sm:text-2xl text-gray-400 ml-3">(${lastEvent} @ ${this.formatPrice(breakLevel)})</span>` 
                 : '';
@@ -177,8 +178,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const API = {
         async fetchCandles(timeframe) {
             const now = Date.now();
-            const multipliers = { '1h': 15, '4h': 60, '1d': 365 };
-            const daysToFetch = multipliers[timeframe] || 30;
+            // Mapeamento de dias de dados a buscar por timeframe
+            const daysToFetchMap = { '15m': 5, '30m': 10, '1h': 15, '4h': 60, '1d': 365 };
+            const daysToFetch = daysToFetchMap[timeframe] || 30;
             const startTime = now - (daysToFetch * 24 * 60 * 60 * 1000);
 
             const requestBody = {
@@ -213,14 +215,17 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const SMC = {
         analyze(candles, timeframe) {
-            if (!candles || candles.length < 50) {
-                throw new Error("Dados insuficientes para uma análise confiável.");
+            // Mapeamento da sensibilidade (lookback) por timeframe
+            const lookbackMap = { '15m': 3, '30m': 4, '1h': 5, '4h': 6, '1d': 8 };
+            const lookback = lookbackMap[timeframe] || 5;
+
+            if (!candles || candles.length < (lookback * 2 + 10)) {
+                return { error: `Dados insuficientes para uma análise confiável em ${timeframe}.` };
             }
 
-            const lookback = timeframe === '1d' ? 8 : 5;
             const swings = this._findSwingPoints(candles, lookback);
             if (swings.length < 4) {
-                 throw new Error("Não foi possível identificar topos/fundos suficientes para a análise.");
+                 return { error: `Não foi possível identificar topos/fundos suficientes para a análise em ${timeframe}.` };
             }
 
             const structure = this._findMarketStructure(swings);
@@ -345,6 +350,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const timeframe = UI.elements.timeframeSelector.value;
                 const candles = await API.fetchCandles(timeframe);
                 const report = SMC.analyze(candles, timeframe);
+                
+                // Verifica se a análise retornou um erro
+                if (report.error) {
+                    throw new Error(report.error);
+                }
+
                 UI.render(report);
             } catch (error) {
                 console.error("Erro na análise:", error);
