@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sir BAP AI - Análise Multi-Estratégia</title>
+    <title>Sir BAP AI - Análise SMC</title>
     <!-- Tailwind CSS para Estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -17,427 +17,242 @@
         .animate-fade-in { 
             animation: fade-in 0.5s ease-out forwards;
         }
-        .modal-enter {
-            animation: fade-in 0.3s ease-out forwards;
-        }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans">
 
-    <div id="app-container" class="max-w-5xl mx-auto p-4 sm:p-8">
+    <div id="app-container" class="max-w-3xl mx-auto p-4 sm:p-8">
         
-        <header class="text-center mb-8 relative">
+        <header class="text-center mb-8">
             <div class="flex items-center justify-center mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                 <h1 class="text-4xl sm:text-5xl font-bold ml-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
                     Sir BAP AI
                 </h1>
             </div>
-            <button id="about-button" class="absolute top-0 right-0 bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-                Sobre / Doar
-            </button>
+            <!-- Preço Live -->
             <div id="price-display" class="flex items-center justify-center text-3xl font-bold text-white my-4" style="display: none;">
                 <span class="relative flex h-3 w-3 mr-3">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                 </span>
-                <span id="current-btc-price">--</span>
+                <span id="current-price">--</span>
             </div>
-            <p class="text-gray-400">Análise Multi-Estratégia para Bitcoin (BTC)</p>
+            <p class="text-gray-400">Análise de Smart Money Concepts para Bitcoin (BTC)</p>
         </header>
 
-        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
+        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-8 flex flex-col sm:flex-row items-center justify-center gap-6 flex-wrap">
             <div class="flex items-center gap-2">
                 <span class="font-semibold">Tempo Gráfico:</span>
-                <div id="timeframe-buttons" class="flex bg-gray-900 rounded-md p-1"></div>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="font-semibold">Estratégia:</span>
-                <select id="strategy-selector" class="bg-gray-700 text-white rounded-md p-2 text-sm font-bold transition-colors w-full sm:w-auto">
-                    <option value="didi_qqe">Didi Index</option>
-                    <option value="smc">Smart Money Concepts</option>
-                    <option value="dow">Teoria de Dow</option>
-                    <option value="elliott">Ondas de Elliott (Beta)</option>
+                <select id="timeframe-selector" class="bg-gray-700 text-white rounded-md p-2 text-sm font-bold transition-colors w-full sm:w-auto">
+                    <option value="1h">1 Hora</option>
+                    <option value="1d">Diário</option>
                 </select>
             </div>
-            <button id="analyze-button" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-md transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-cyan-500/50 w-full sm:w-auto">
-                Analisar Novamente
+            <button id="analyze-button" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-md transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-cyan-500/50 w-full sm:w-auto text-lg">
+                Analisar
             </button>
         </div>
 
-        <div id="loader" class="text-center p-8 text-cyan-400" style="display: none;">A analisar os dados do BTC em tempo real...</div>
+        <div id="loader" class="text-center p-8 text-cyan-400" style="display: none;">A analisar os dados...</div>
         <div id="error-message" class="bg-red-900/50 text-red-300 p-4 rounded-lg text-center mb-4" style="display: none;"></div>
         
         <div id="analysis-result" class="bg-gray-800/30 rounded-lg p-6" style="display: none;"></div>
-    </div>
-    
-    <div id="about-modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50" style="display: none;">
-        <div id="about-modal-content" class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl border border-gray-600 relative modal-enter">
-            <button id="close-modal-button" class="absolute top-3 right-3 text-gray-400 hover:text-white">&times;</button>
-            <h2 class="text-2xl font-bold text-cyan-400 mb-4">Sobre o Sir BAP AI</h2>
-            <div class="text-gray-300 space-y-4">
-                <p>O <strong>Sir BAP AI</strong> é uma ferramenta de análise técnica automatizada, desenhada para fornecer uma visão clara do mercado de Bitcoin (BTC) com base em estratégias de trading consagradas.</p>
-                <div>
-                    <h3 class="font-bold text-lg text-white">Estratégias Implementadas</h3>
-                    <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
-                        <li><strong>Didi Index:</strong> Cruzamento de médias móveis para identificar a tendência e os pontos de entrada/saída.</li>
-                        <li><strong>Smart Money Concepts (SMC):</strong> Identifica a estrutura do mercado, zonas de liquidez e Order Blocks para seguir os movimentos do "dinheiro inteligente".</li>
-                        <li><strong>Teoria de Dow:</strong> Análise clássica da tendência baseada em topos e fundos ascendentes ou descendentes.</li>
-                        <li><strong>Ondas de Elliott (Beta):</strong> Tenta identificar padrões de impulso e correção (pullbacks) para encontrar pontos de entrada com bom risco/retorno.</li>
-                    </ul>
-                     <p class="text-xs text-gray-400 mt-2">Dados de mercado via Hyperliquid API. Notícias via CryptoCompare API.</p>
-                </div>
-                <div class="border-t border-gray-600 pt-4 mt-4">
-                    <h3 class="font-bold text-lg text-white">Apoie o Desenvolvedor</h3>
-                    <p>Se esta ferramenta o ajudou, considere fazer uma doação para apoiar a manutenção e desenvolvimento.</p>
-                    <div class="mt-4 p-3 bg-gray-900 rounded-lg">
-                        <label class="text-sm font-bold text-gray-400">Carteira Bitcoin (BTC):</label>
-                        <div class="flex items-center justify-between mt-1 gap-4">
-                            <input id="btc-address" type="text" readonly value="bc1q5h0v9ghs89st9cz3wxld48fpcf8n3cudr9g83u" class="bg-transparent text-white w-full text-sm sm:text-base break-words">
-                            <button id="copy-address-button" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors whitespace-nowrap">Copiar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const dom = {
-            timeframeButtonsContainer: document.getElementById('timeframe-buttons'),
             analyzeButton: document.getElementById('analyze-button'),
             loader: document.getElementById('loader'),
             errorMessage: document.getElementById('error-message'),
             analysisResultContainer: document.getElementById('analysis-result'),
+            timeframeSelector: document.getElementById('timeframe-selector'),
             priceDisplay: document.getElementById('price-display'),
-            currentBtcPriceElement: document.getElementById('current-btc-price'),
-            strategySelector: document.getElementById('strategy-selector'),
-            aboutButton: document.getElementById('about-button'),
-            aboutModalOverlay: document.getElementById('about-modal-overlay'),
-            closeModalButton: document.getElementById('close-modal-button'),
-            copyAddressButton: document.getElementById('copy-address-button'),
-            btcAddressInput: document.getElementById('btc-address')
-        };
-
-        let state = {
-            currentTimeframe: '1h',
-            currentStrategy: 'didi_qqe',
-            timeframes: ['5m', '15m', '1h', '4h', '1d']
-        };
-
-        const icons = {
-            target: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>`,
-            check: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M20 6 9 17l-5-5"></path></svg>`,
-            x: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>`,
-            newspaper: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4"></path><path d="M16 2v20"></path><path d="M8 7h4"></path><path d="M8 12h4"></path><path d="M8 17h4"></path></svg>`,
+            currentPriceElement: document.getElementById('current-price'),
         };
 
         const ta = {
-            sma: (data, period) => {
-                if (!data || data.length < period) return [];
-                let result = [];
-                for (let i = period - 1; i < data.length; i++) {
-                    let sum = 0;
-                    for (let j = 0; j < period; j++) sum += data[i - j];
-                    result.push(sum / period);
-                }
-                return result;
-            },
             getSwingPoints: (candles, lookback) => {
                 let swings = [];
                 if (!candles || candles.length < (lookback * 2 + 1)) return [];
                 for(let i = lookback; i < candles.length - lookback; i++) {
                     const highSlice = candles.slice(i - lookback, i + lookback + 1).map(c => c.h);
                     const lowSlice = candles.slice(i - lookback, i + lookback + 1).map(c => c.l);
-                    if (candles[i].h >= Math.max(...highSlice)) swings.push({ type: 'high', price: candles[i].h, index: i });
-                    if (candles[i].l <= Math.min(...lowSlice)) swings.push({ type: 'low', price: candles[i].l, index: i });
+                    if (candles[i].h >= Math.max(...highSlice)) swings.push({ type: 'high', candle: candles[i], index: i });
+                    if (candles[i].l <= Math.min(...lowSlice)) swings.push({ type: 'low', candle: candles[i], index: i });
                 }
                 return swings;
             },
+            getFVG: (candles) => {
+                let bullishFVG = null;
+                let bearishFVG = null;
+                if (!candles || candles.length < 3) return { bullish: null, bearish: null };
+
+                for (let i = candles.length - 3; i > 0; i--) {
+                    const candle1 = candles[i];
+                    const candle3 = candles[i + 2];
+
+                    if (!bullishFVG && candle1.h < candle3.l) {
+                        bullishFVG = { high: candle3.l, low: candle1.h };
+                    }
+                    if (!bearishFVG && candle1.l > candle3.h) {
+                        bearishFVG = { high: candle1.l, low: candle3.h };
+                    }
+                    if (bullishFVG && bearishFVG) break;
+                }
+                return { bullish: bullishFVG, bearish: bearishFVG };
+            }
         };
         
-        const strategies = {
-            didi_qqe: (candles) => {
-                let report = { decision: "AGUARDAR", position: "NEUTRO", entryPrice: null, targetPrice: null, stopPrice: null, checklist: [] };
-                const closes = candles.map(c => c.c);
-                const swings = ta.getSwingPoints(candles, 5);
+        const smcAnalysis = (candles, lookback) => {
+            let report = { 
+                bias: "LATERAL", 
+                demandZone: null, supplyZone: null, 
+                bullishFVG: null, bearishFVG: null,
+                buyPlan: null, sellPlan: null
+            };
+            const swings = ta.getSwingPoints(candles, lookback);
+            if (swings.length < 4) return report;
+
+            const highs = swings.filter(s => s.type === 'high');
+            const lows = swings.filter(s => s.type === 'low');
+            if (highs.length < 2 || lows.length < 2) return report;
+
+            const lastHigh = highs.at(-1);
+            const prevHigh = highs.at(-2);
+            const lastLow = lows.at(-1);
+            const prevLow = lows.at(-2);
+            
+            if (lastHigh.candle.h > prevHigh.candle.h && lastLow.candle.l > prevLow.candle.l) {
+                report.bias = 'ALTA';
+            } else if (lastLow.candle.l < prevLow.candle.l && lastHigh.candle.h < prevHigh.candle.h) {
+                report.bias = 'BAIXA';
+            }
+
+            if (report.bias === 'ALTA') {
+                const candlesAroundLastLow = candles.slice(Math.max(0, lastLow.index - lookback), lastLow.index + 1);
+                const downCandleAtHL = candlesAroundLastLow.filter(c => c.o > c.c).pop();
+                if(downCandleAtHL) report.demandZone = { low: downCandleAtHL.l, high: downCandleAtHL.h };
+            } else if (report.bias === 'BAIXA') {
+                const candlesAroundLastHigh = candles.slice(Math.max(0, lastHigh.index - lookback), lastHigh.index + 1);
+                const upCandleAtLH = candlesAroundLastHigh.filter(c => c.c > c.o).pop();
+                if(upCandleAtLH) report.supplyZone = { low: upCandleAtLH.l, high: upCandleAtLH.h };
+            }
+
+            const fvgs = ta.getFVG(candles);
+            report.bullishFVG = fvgs.bullish;
+            report.bearishFVG = fvgs.bearish;
+
+            if (report.bias === 'ALTA' && report.demandZone) {
+                const risk = report.demandZone.high - report.demandZone.low;
+                report.buyPlan = {
+                    title: "Plano de Compra (Viés de Alta)",
+                    entry: report.demandZone.high,
+                    stop: report.demandZone.low,
+                    target: report.demandZone.high + (risk * 2)
+                };
+            } else if (report.bias === 'BAIXA' && report.supplyZone) {
+                 const risk = report.supplyZone.high - report.supplyZone.low;
+                report.sellPlan = {
+                    title: "Plano de Venda (Viés de Baixa)",
+                    entry: report.supplyZone.low,
+                    stop: report.supplyZone.high,
+                    target: report.supplyZone.low - (risk * 2)
+                };
+            } else if (report.bias === 'LATERAL') {
+                const resistance = Math.max(lastHigh.candle.h, prevHigh.candle.h);
+                const support = Math.min(lastLow.candle.l, prevLow.candle.l);
                 
-                const curtaLen = 3, mediaLen = 8, longaLen = 20;
-                
-                const maCurta = ta.sma(closes, curtaLen);
-                const maMedia = ta.sma(closes, mediaLen);
-                const maLonga = ta.sma(closes, longaLen);
-                
-                const minLength = Math.min(maCurta.length, maMedia.length, maLonga.length);
-                const [alignedCurta, alignedMedia, alignedLonga] = [maCurta, maMedia, maLonga].map(arr => arr.slice(arr.length - minLength));
+                report.sellPlan = {
+                    title: "Plano de Venda (Resistência)",
+                    entry: resistance,
+                    stop: resistance * 1.005,
+                    target: support
+                };
+                report.buyPlan = {
+                    title: "Plano de Compra (Suporte)",
+                    entry: support,
+                    stop: support * 0.995,
+                    target: resistance
+                };
+            }
 
-                if(alignedCurta.length < 2) return report;
-
-                const didiCurta = alignedCurta.map((val, i) => val - alignedMedia[i]);
-                const didiLonga = alignedLonga.map((val, i) => val - alignedMedia[i]);
-
-                let lastCross = { type: 'NEUTRO', index: -1 };
-                for (let i = didiCurta.length - 1; i > 0; i--) {
-                    const cCurta = didiCurta[i], pCurta = didiCurta[i-1];
-                    const cLonga = didiLonga[i], pLonga = didiLonga[i-1];
-                    const in_buy_zone = cCurta > 0 && cLonga > 0;
-                    const in_sell_zone = cCurta < 0 && cLonga < 0;
-
-                    if (pCurta <= pLonga && cCurta > cLonga && in_buy_zone) {
-                        lastCross = { type: 'COMPRA', index: i };
-                        break;
-                    }
-                    if (pCurta >= pLonga && cCurta < cLonga && in_sell_zone) {
-                        lastCross = { type: 'VENDA', index: i };
-                        break;
-                    }
-                }
-
-                report.position = lastCross.type === 'NEUTRO' ? 'NEUTRO' : lastCross.type === 'COMPRA' ? 'COMPRADO' : 'VENDIDO';
-
-                const isCurrentCross = lastCross.index === didiCurta.length - 1;
-                if (isCurrentCross) {
-                    report.decision = lastCross.type;
-                } else if (report.position !== 'NEUTRO') {
-                    report.decision = 'MANTER';
-                }
-
-                if (report.position !== 'NEUTRO') {
-                    const entryCandleIndex = candles.length - (didiCurta.length - lastCross.index);
-                    if(entryCandleIndex >= 0 && entryCandleIndex < candles.length) {
-                        const entryPrice = candles[entryCandleIndex].c;
-                        report.entryPrice = entryPrice;
-                        if(report.position === 'COMPRADO') {
-                            let stopCandle = swings.filter(s => s.type === 'low' && s.index < entryCandleIndex).pop();
-                            if(stopCandle) {
-                                report.stopPrice = stopCandle.price;
-                                report.targetPrice = entryPrice + (entryPrice - stopCandle.price) * 1.5;
-                            }
-                        } else { // VENDIDO
-                             let stopCandle = swings.filter(s => s.type === 'high' && s.index < entryCandleIndex).pop();
-                            if(stopCandle) {
-                                report.stopPrice = stopCandle.price;
-                                report.targetPrice = entryPrice - (stopCandle.price - entryPrice) * 1.5;
-                            }
-                        }
-                    }
-                }
-
-                report.checklist = [
-                    { name: "Último Cruzamento Válido", active: lastCross.type !== 'NEUTRO', value: `${lastCross.type} (${lastCross.index > -1 ? didiCurta.length - 1 - lastCross.index : 'N/A'} candles atrás)` },
-                    { name: "Posição Baseada no Hist.", active: report.position !== 'NEUTRO', value: report.position }
-                ];
-                
-                return report;
-            },
-            smc: (candles) => {
-                let report = { decision: "AGUARDAR", position: 'NEUTRO', entryPrice: null, targetPrice: null, stopPrice: null, checklist: [] };
-                const swings = ta.getSwingPoints(candles, 3);
-                if (swings.length < 4) return report;
-                
-                let lastStructure = { type: 'NEUTRO', high: null, low: null, prevHigh: null, prevLow: null };
-
-                for (let i = swings.length - 1; i >= 3; i--) {
-                    const lastSwings = swings.slice(0, i + 1);
-                    const highs = lastSwings.filter(s => s.type === 'high');
-                    const lows = lastSwings.filter(s => s.type === 'low');
-                    if(highs.length < 2 || lows.length < 2) continue;
-
-                    const lastHigh = highs[highs.length - 1];
-                    const prevHigh = highs[highs.length - 2];
-                    const lastLow = lows[lows.length - 1];
-                    const prevLow = lows[lows.length - 2];
-                    
-                    if (lastHigh.price > prevHigh.price && lastLow.price > prevLow.price) {
-                        lastStructure = { type: 'COMPRA', high: lastHigh, low: lastLow, prevHigh: prevHigh, prevLow: prevLow, index: i};
-                        break;
-                    }
-                    if (lastLow.price < prevLow.price && lastHigh.price < prevHigh.price) {
-                        lastStructure = { type: 'VENDA', high: lastHigh, low: lastLow, prevHigh: prevHigh, prevLow: prevLow, index: i};
-                        break;
-                    }
-                }
-                
-                if (lastStructure.type !== 'NEUTRO') {
-                    const isCurrentStructure = lastStructure.index === swings.length - 1;
-                    report.decision = isCurrentStructure ? lastStructure.type : 'MANTER';
-                    report.position = lastStructure.type === 'COMPRA' ? 'COMPRADO' : 'VENDIDO';
-                    
-                    if (report.position === 'COMPRADO') {
-                        report.entryPrice = lastStructure.low.price;
-                        report.stopPrice = lastStructure.prevLow.price;
-                        report.targetPrice = lastStructure.high.price + (lastStructure.high.price - lastStructure.low.price);
-                    } else { // VENDIDO
-                        report.entryPrice = lastStructure.high.price;
-                        report.stopPrice = lastStructure.prevHigh.price;
-                        report.targetPrice = lastStructure.low.price - (lastStructure.high.price - lastStructure.low.price);
-                    }
-                }
-
-                report.checklist = [
-                    {name: "Última Estrutura Válida", active: lastStructure.type !== 'NEUTRO', value: lastStructure.type === 'COMPRA' ? "Alta (HH, HL)" : (lastStructure.type === 'VENDA' ? "Baixa (LL, LH)" : "Consolidado") },
-                    {name: "Posição Baseada na Estrutura", active: report.position !== 'NEUTRO', value: report.position }
-                ];
-                
-                return report;
-            },
-            dow: (candles) => {
-                 let report = { decision: "AGUARDAR", position: 'NEUTRO', entryPrice: null, targetPrice: null, stopPrice: null, checklist: [] };
-                const swings = ta.getSwingPoints(candles, 5);
-                if (swings.length < 4) return report;
-
-                let lastTrend = { type: 'NEUTRO', high: null, low: null, index: -1 };
-
-                for (let i = swings.length - 1; i >= 3; i--) {
-                    const lastSwings = swings.slice(0, i + 1);
-                    const highs = lastSwings.filter(s => s.type === 'high');
-                    const lows = lastSwings.filter(s => s.type === 'low');
-                    if(highs.length < 2 || lows.length < 2) continue;
-                    
-                    const lastHigh = highs[highs.length - 1];
-                    const prevHigh = highs[highs.length - 2];
-                    const lastLow = lows[lows.length - 1];
-                    const prevLow = lows[lows.length - 2];
-                    
-                    if (lastHigh.price > prevHigh.price && lastLow.price > prevLow.price) {
-                        lastTrend = { type: 'COMPRA', high: lastHigh, low: lastLow, index: i };
-                        break;
-                    }
-                    if (lastHigh.price < prevHigh.price && lastLow.price < prevLow.price) {
-                        lastTrend = { type: 'VENDA', high: lastHigh, low: lastLow, index: i };
-                        break;
-                    }
-                }
-
-                if(lastTrend.type !== 'NEUTRO') {
-                    const isCurrent = lastTrend.index === swings.length - 1;
-                    report.decision = isCurrent ? lastTrend.type : 'MANTER';
-                    report.position = lastTrend.type === 'COMPRA' ? 'COMPRADO' : 'VENDIDO';
-
-                    if (report.position === 'COMPRADO') {
-                        report.entryPrice = lastTrend.high.price;
-                        report.stopPrice = lastTrend.low.price;
-                        report.targetPrice = lastTrend.high.price + (lastTrend.high.price - lastTrend.low.price);
-                    } else { // VENDIDO
-                        report.entryPrice = lastTrend.low.price;
-                        report.stopPrice = lastTrend.high.price;
-                        report.targetPrice = lastTrend.low.price - (lastTrend.high.price - lastTrend.low.price);
-                    }
-                }
-
-                report.checklist = [
-                    { name: "Última Tendência Dow", active: lastTrend.type !== 'NEUTRO', value: lastTrend.type === 'COMPRA' ? "Alta" : "Baixa" },
-                    { name: "Posição Baseada na Tend.", active: report.position !== 'NEUTRO', value: report.position }
-                ];
-                
-                return report;
-            },
-            elliott: (candles) => {
-                let report = { decision: "AGUARDAR", position: 'NEUTRO', entryPrice: null, targetPrice: null, stopPrice: null, checklist: [] };
-                const swings = ta.getSwingPoints(candles, 3);
-                if (swings.length < 3) return report;
-                
-                let lastSetup = { type: 'NEUTRO', index: -1, high: null, low: null, prevLow: null, prevHigh: null };
-                
-                for (let i = swings.length - 1; i >= 2; i--) {
-                    const currentSwing = swings[i];
-                    if (currentSwing.type === 'low') {
-                        const prevHigh = swings.filter(s => s.type === 'high' && s.index < currentSwing.index).pop();
-                        const prevLow = swings.filter(s => s.type === 'low' && s.index < prevHigh?.index).pop();
-                        if (prevHigh && prevLow && currentSwing.price > prevLow.price) {
-                            lastSetup = { type: 'COMPRA', index: i, high: prevHigh, low: currentSwing, prevLow: prevLow };
-                            break;
-                        }
-                    } else { // currentSwing.type === 'high'
-                        const prevLow = swings.filter(s => s.type === 'low' && s.index < currentSwing.index).pop();
-                        const prevHigh = swings.filter(s => s.type === 'high' && s.index < prevLow?.index).pop();
-                        if (prevLow && prevHigh && currentSwing.price < prevHigh.price) {
-                            lastSetup = { type: 'VENDA', index: i, high: currentSwing, low: prevLow, prevHigh: prevHigh };
-                            break;
-                        }
-                    }
-                }
-                
-                if (lastSetup.type !== 'NEUTRO') {
-                    const isCurrent = lastSetup.index === swings.length -1;
-                    report.decision = isCurrent ? lastSetup.type : 'MANTER';
-                    report.position = lastSetup.type;
-
-                    if (report.position === 'COMPRA') {
-                        report.entryPrice = lastSetup.low.price;
-                        report.stopPrice = lastSetup.prevLow.price;
-                        report.targetPrice = lastSetup.high.price + (lastSetup.high.price - lastSetup.low.price);
-                    } else {
-                        report.entryPrice = lastSetup.high.price;
-                        report.stopPrice = lastSetup.prevHigh.price;
-                        report.targetPrice = lastSetup.low.price - (lastSetup.high.price - lastSetup.low.price);
-                    }
-                }
-
-                report.checklist = [
-                    {name: "Último Setup de Pullback", active: lastSetup.type !== 'NEUTRO', value: lastSetup.type},
-                    {name: "Posição Baseada no Setup", active: report.position !== 'NEUTRO', value: report.position}
-                ];
-                return report;
-            },
+            return report;
         };
 
-        function renderUI(report, currentPrice, displayDecision) {
-            const { entryPrice, targetPrice, stopPrice, position, checklist } = report;
+        function renderUI(report, timeframe, currentPrice) {
+            const { bias, demandZone, supplyZone, bullishFVG, bearishFVG, buyPlan, sellPlan } = report;
 
-            dom.currentBtcPriceElement.textContent = '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             dom.priceDisplay.style.display = 'flex';
+            dom.currentPriceElement.textContent = '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            const decisionStyles = { COMPRA: "bg-green-600 border-green-400", VENDA: "bg-red-600 border-red-400", AGUARDAR: "bg-gray-600 border-gray-500", MANTER: "bg-blue-600 border-blue-400" };
-            const posStyles = { COMPRADO: "text-green-400", VENDIDO: "text-red-400", NEUTRO: "text-gray-400" };
-            const mainDecision = displayDecision.split(' ')[0];
-
-            const createChecklistHTML = (list) => (list || []).map(item => `
-                <li class="flex items-center justify-between p-3 bg-gray-800/60 rounded-md">
-                    <div class="flex items-center">
-                         <div class="w-5 h-5 rounded-full flex items-center justify-center mr-3 ${item.active ? 'bg-green-500' : 'bg-red-500'}">${item.active ? icons.check : icons.x}</div>
-                         <span class="text-white">${item.name}</span>
+            const biasStyles = { ALTA: "bg-green-600 border-green-400", BAIXA: "bg-red-600 border-red-400", LATERAL: "bg-gray-600 border-gray-500" };
+            
+            const createTradePlanHTML = (plan) => {
+                if (!plan) return '';
+                const isBuy = plan.title.includes('Compra');
+                const colorClass = isBuy ? 'border-green-500' : 'border-red-500';
+                return `
+                    <div class="p-4 rounded-lg bg-gray-900/70 border-l-4 ${colorClass} space-y-3 mt-4">
+                         <h3 class="text-xl font-semibold text-cyan-400 mb-2">${plan.title}</h3>
+                         <div class="flex justify-between items-center"><span class="text-gray-400">Entrada:</span><span class="font-mono text-lg text-white">${plan.entry ? plan.entry.toFixed(2) : 'N/A'}</span></div>
+                         <div class="flex justify-between items-center"><span class="text-gray-400">Alvo:</span><span class="font-mono text-lg text-green-400">${plan.target ? plan.target.toFixed(2) : 'N/A'}</span></div>
+                         <div class="flex justify-between items-center"><span class="text-gray-400">Stop:</span><span class="font-mono text-lg text-red-400">${plan.stop ? plan.stop.toFixed(2) : 'N/A'}</span></div>
                     </div>
-                    <span class="text-gray-400 text-xs font-mono">${item.value}</span>
-                </li>`).join('');
+                `;
+            };
 
             dom.analysisResultContainer.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="text-center p-6 rounded-lg border-2 shadow-lg ${decisionStyles[mainDecision] || decisionStyles['AGUARDAR']}">
-                        <h2 class="text-xl font-semibold text-white mb-1">SINAL DE AÇÃO</h2>
-                        <p class="text-5xl font-bold text-white tracking-wider">${displayDecision}</p>
-                         <p class="text-lg font-semibold mt-2 ${posStyles[position]}">Posição Atual: ${position}</p>
-                    </div>
-                    <div class="p-6 rounded-lg bg-gray-900/70 border border-gray-700 space-y-3">
-                         <h2 class="text-xl font-semibold text-cyan-400 mb-2 text-center">PLANO DE TRADE</h2>
-                         <div class="flex justify-between items-center"><span class="text-gray-400">Entrada:</span><span class="font-mono text-lg text-white">${entryPrice ? entryPrice.toFixed(2) : 'N/A'}</span></div>
-                         <div class="flex justify-between items-center"><span class="text-gray-400">Alvo:</span><span class="font-mono text-lg text-green-400">${targetPrice ? targetPrice.toFixed(2) : 'N/A'}</span></div>
-                         <div class="flex justify-between items-center"><span class="text-gray-400">Stop:</span><span class="font-mono text-lg text-red-400">${stopPrice ? stopPrice.toFixed(2) : 'N/A'}</span></div>
-                    </div>
-                </div>
                 <div class="grid grid-cols-1 gap-6">
+                    <div class="text-center p-6 rounded-lg border-2 shadow-lg ${biasStyles[bias]}">
+                        <h2 class="text-xl font-semibold text-white mb-1">VIÉS DO MERCADO (${timeframe.toUpperCase()})</h2>
+                        <p class="text-5xl font-bold text-white tracking-wider">${bias}</p>
+                    </div>
+
                     <section>
-                        <h3 class="flex items-center text-xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">${icons.target}<span class="ml-2">Checklist da Estratégia (${dom.strategySelector.options[dom.strategySelector.selectedIndex].text})</span></h3>
-                        <ul class="space-y-2">${createChecklistHTML(checklist)}</ul>
+                        ${createTradePlanHTML(buyPlan)}
+                        ${createTradePlanHTML(sellPlan)}
+                    </section>
+
+                    <section>
+                        <h3 class="flex items-center text-2xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                            Zonas de Interesse (SMC)
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-4 bg-green-900/30 rounded-md border-l-4 border-green-500">
+                                <span class="text-gray-300 font-semibold">Zona de Demanda (OB)</span>
+                                <span class="font-mono text-lg text-green-400">${demandZone ? `${demandZone.low.toFixed(2)} - ${demandZone.high.toFixed(2)}` : 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-red-900/30 rounded-md border-l-4 border-red-500">
+                                <span class="text-gray-300 font-semibold">Zona de Oferta (OB)</span>
+                                <span class="font-mono text-lg text-red-400">${supplyZone ? `${supplyZone.low.toFixed(2)} - ${supplyZone.high.toFixed(2)}` : 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-green-900/30 rounded-md border-l-4 border-green-500">
+                                <span class="text-gray-300 font-semibold">FVG (Compra)</span>
+                                <span class="font-mono text-lg text-green-400">${bullishFVG ? `${bullishFVG.low.toFixed(2)} - ${bullishFVG.high.toFixed(2)}` : 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-red-900/30 rounded-md border-l-4 border-red-500">
+                                <span class="text-gray-300 font-semibold">FVG (Venda)</span>
+                                <span class="font-mono text-lg text-red-400">${bearishFVG ? `${bearishFVG.low.toFixed(2)} - ${bearishFVG.high.toFixed(2)}` : 'N/A'}</span>
+                            </div>
+                        </div>
                     </section>
                 </div>
-                <section class="mt-8">
-                     <h3 class="flex items-center text-xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">${icons.newspaper}<span class="ml-2">Notícias e Sentimento</span></h3>
-                     <ul id="news-list" class="list-disc list-inside space-y-1 text-gray-400"></ul>
-                </section>
-                <div class="text-center mt-8 text-xs text-gray-500">
-                    <p>Aviso: Esta é uma análise automatizada e não constitui uma recomendação de investimento.</p>
-                </div>
             `;
-
-            const newsList = document.getElementById('news-list');
-            if(report.news && report.news.length > 0){
-                newsList.innerHTML = report.news.map(item => `<li><a href="${item.url}" target="_blank" class="hover:text-cyan-400">${item.title}</a></li>`).join('');
-            } else {
-                newsList.innerHTML = `<li>Não foi possível carregar as notícias.</li>`;
-            }
             dom.analysisResultContainer.classList.add('animate-fade-in');
+        }
+
+        async function fetchData(timeframe) {
+            const now = Date.now();
+            const multipliers = { '1h': 5, '1d': 100 };
+            const daysToFetch = multipliers[timeframe] || 30;
+            const startTime = now - (daysToFetch * 24 * 60 * 60 * 1000);
+            const req = { "type": "candleSnapshot", "req": { "coin": "BTC", "interval": timeframe, "startTime": startTime, "endTime": now } };
+            const res = await fetch('https://api.hyperliquid.xyz/info', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }, body: JSON.stringify(req) });
+            if (!res.ok) throw new Error(`Falha na API para ${timeframe}.`);
+            return (await res.json()).slice(-500).map(c => ({ o: parseFloat(c.o), h: parseFloat(c.h), l: parseFloat(c.l), c: parseFloat(c.c) }));
         }
 
         async function handleAnalyze() {
@@ -447,38 +262,22 @@
             dom.analysisResultContainer.classList.remove('animate-fade-in');
             dom.analyzeButton.disabled = true;
 
+            const selectedTimeframe = dom.timeframeSelector.value;
+            const lookback = selectedTimeframe === '1d' ? 10 : 5; // Lógica de lookback ajustável
+
             try {
-                let newsData = [];
-                try {
-                    const newsResponse = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=PT&categories=BTC,ETH,CRYPTO');
-                    if(newsResponse.ok) newsData = (await newsResponse.json()).Data.slice(0, 4);
-                } catch (e) { console.error("Falha ao buscar notícias:", e); }
-
-                const now = Date.now();
-                const multipliers = { '5m': 10, '15m': 30, '1h': 60, '4h': 120, '1d': 500 };
-                const daysToFetch = multipliers[state.currentTimeframe] || 30;
-                const startTime = now - (daysToFetch * 24 * 60 * 60 * 1000);
-                const req = { "type": "candleSnapshot", "req": { "coin": "BTC", "interval": state.currentTimeframe, "startTime": startTime, "endTime": now } };
+                const data = await fetchData(selectedTimeframe);
                 
-                const res = await fetch('https://api.hyperliquid.xyz/info', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
-                if (!res.ok) throw new Error(`Falha na API da Hyperliquid.`);
+                if (!data || data.length === 0) throw new Error(`Dados para ${selectedTimeframe} não puderam ser carregados.`);
                 
-                const data = (await res.json()).slice(-500).map(c => ({ o: parseFloat(c.o), h: parseFloat(c.h), l: parseFloat(c.l), c: parseFloat(c.c) }));
-                if (!Array.isArray(data) || data.length < 50) throw new Error(`Dados históricos insuficientes.`);
+                const report = smcAnalysis(data, lookback);
+                const currentPrice = data.at(-1).c;
                 
-                const analysisFunction = strategies[state.currentStrategy];
-                if (!analysisFunction) throw new Error("Estratégia selecionada é inválida.");
-                
-                const report = analysisFunction(data);
-                report.news = newsData;
-                
-                const currentPrice = data[data.length - 1].c;
-                renderUI(report, currentPrice, report.decision);
-
+                renderUI(report, selectedTimeframe, currentPrice);
                 dom.analysisResultContainer.style.display = 'block';
 
             } catch (e) {
-                dom.errorMessage.textContent = `${e.message} (Timeframe: ${state.currentTimeframe})`;
+                dom.errorMessage.textContent = `Erro ao buscar dados: ${e.message}. Isso pode ser uma falha temporária da API. Tente novamente em alguns instantes.`;
                 dom.errorMessage.style.display = 'block';
             } finally {
                 dom.loader.style.display = 'none';
@@ -487,50 +286,9 @@
         }
         
         function setup() {
-            dom.timeframeButtonsContainer.innerHTML = state.timeframes.map(tf => `
-                <button data-tf="${tf}" class="timeframe-btn px-3 py-1 rounded-md text-sm font-bold transition-colors ${state.currentTimeframe === tf ? 'bg-cyan-500 text-white' : 'text-gray-400 hover:bg-gray-700'}">
-                    ${tf}
-                </button>
-            `).join('');
-
-            document.querySelectorAll('.timeframe-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    state.currentTimeframe = e.currentTarget.dataset.tf;
-                    document.querySelectorAll('.timeframe-btn').forEach(btn => {
-                        btn.classList.remove('bg-cyan-500', 'text-white');
-                        btn.classList.add('text-gray-400', 'hover:bg-gray-700');
-                    });
-                    e.currentTarget.classList.add('bg-cyan-500', 'text-white');
-                    e.currentTarget.classList.remove('text-gray-400', 'hover:bg-gray-700');
-                    handleAnalyze();
-                });
-            });
-
-            dom.strategySelector.addEventListener('change', (e) => {
-                state.currentStrategy = e.target.value;
-                handleAnalyze();
-            });
-
             dom.analyzeButton.addEventListener('click', handleAnalyze);
+            dom.timeframeSelector.addEventListener('change', handleAnalyze);
             
-            dom.aboutButton.addEventListener('click', () => dom.aboutModalOverlay.style.display = 'flex');
-            dom.closeModalButton.addEventListener('click', () => dom.aboutModalOverlay.style.display = 'none');
-            dom.aboutModalOverlay.addEventListener('click', (e) => {
-                if (e.target === dom.aboutModalOverlay) dom.aboutModalOverlay.style.display = 'none';
-            });
-            dom.copyAddressButton.addEventListener('click', () => {
-                try {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = dom.btcAddressInput.value;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    dom.copyAddressButton.textContent = 'Copiado!';
-                    setTimeout(() => { dom.copyAddressButton.textContent = 'Copiar'; }, 2000);
-                } catch (err) { console.error('Falha ao copiar:', err); }
-            });
-
             handleAnalyze();
         }
 
