@@ -3,297 +3,366 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sir BAP AI - Análise SMC</title>
-    <!-- Tailwind CSS para Estilização -->
+    <title>Sir BAP AI - Análise SMC v2.1</title>
+    <!-- Tailwind CSS para Estilização Rápida -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Estilos personalizados e animações */
         html, body {
-            background-color: #111827; /* bg-gray-900 */
+            background-color: #111827; /* Cor de fundo principal (bg-gray-900) */
+            scroll-behavior: smooth;
         }
         @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); } 
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in { 
+        .animate-fade-in {
             animation: fade-in 0.5s ease-out forwards;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white font-sans">
+<body class="bg-gray-900 text-gray-200 font-sans">
 
-    <div id="app-container" class="max-w-3xl mx-auto p-4 sm:p-8">
-        
-        <header class="text-center mb-8">
+    <div class="max-w-4xl mx-auto p-4 sm:p-6">
+
+        <!-- CABEÇALHO -->
+        <header class="text-center mb-6">
             <div class="flex items-center justify-center mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                 <h1 class="text-4xl sm:text-5xl font-bold ml-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
                     Sir BAP AI
                 </h1>
             </div>
-            <!-- Preço Live -->
-            <div id="price-display" class="flex items-center justify-center text-3xl font-bold text-white my-4" style="display: none;">
-                <span class="relative flex h-3 w-3 mr-3">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                <span id="current-price">--</span>
-            </div>
-            <p class="text-gray-400">Análise de Smart Money Concepts para Bitcoin (BTC)</p>
+            <p class="text-gray-400 text-sm sm:text-base">Análise de Smart Money Concepts para Bitcoin (BTC)</p>
         </header>
 
-        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-8 flex flex-col sm:flex-row items-center justify-center gap-6 flex-wrap">
-            <div class="flex items-center gap-2">
-                <span class="font-semibold">Tempo Gráfico:</span>
-                <select id="timeframe-selector" class="bg-gray-700 text-white rounded-md p-2 text-sm font-bold transition-colors w-full sm:w-auto">
+        <!-- PAINEL DE CONTROLE -->
+        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <label for="timeframe-selector" class="font-semibold text-gray-300">Tempo Gráfico:</label>
+                <select id="timeframe-selector" class="bg-gray-700 text-white rounded-md p-2 text-sm font-bold border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
                     <option value="1h">1 Hora</option>
-                    <option value="1d">Diário</option>
+                    <option value="4h">4 Horas</option>
+                    <option value="1d" selected>Diário</option>
                 </select>
             </div>
-            <button id="analyze-button" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-md transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-cyan-500/50 w-full sm:w-auto text-lg">
-                Analisar
-            </button>
+            <div id="price-display" class="flex items-center justify-center text-xl font-bold text-white" style="display: none;">
+                <span id="price-label" class="text-gray-400 font-medium mr-2">Preço:</span>
+                <span id="current-price">--</span>
+            </div>
         </div>
 
-        <div id="loader" class="text-center p-8 text-cyan-400" style="display: none;">A analisar os dados...</div>
+        <!-- ÁREA DE RESULTADOS -->
+        <div id="loader" class="text-center p-8 text-cyan-400" style="display: none;">
+            <p>🧠 Analisando o mercado...</p>
+        </div>
         <div id="error-message" class="bg-red-900/50 text-red-300 p-4 rounded-lg text-center mb-4" style="display: none;"></div>
-        
-        <div id="analysis-result" class="bg-gray-800/30 rounded-lg p-6" style="display: none;"></div>
+        <div id="analysis-result" class="space-y-6" style="display: none;"></div>
+
     </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const dom = {
-            analyzeButton: document.getElementById('analyze-button'),
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    /**
+     * MÓDULO UI: Responsável por toda a manipulação do DOM.
+     */
+    const UI = {
+        elements: {
             loader: document.getElementById('loader'),
             errorMessage: document.getElementById('error-message'),
-            analysisResultContainer: document.getElementById('analysis-result'),
+            analysisResult: document.getElementById('analysis-result'),
             timeframeSelector: document.getElementById('timeframe-selector'),
             priceDisplay: document.getElementById('price-display'),
-            currentPriceElement: document.getElementById('current-price'),
-        };
-
-        const ta = {
-            getSwingPoints: (candles, lookback) => {
-                let swings = [];
-                if (!candles || candles.length < (lookback * 2 + 1)) return [];
-                for(let i = lookback; i < candles.length - lookback; i++) {
-                    const highSlice = candles.slice(i - lookback, i + lookback + 1).map(c => c.h);
-                    const lowSlice = candles.slice(i - lookback, i + lookback + 1).map(c => c.l);
-                    if (candles[i].h >= Math.max(...highSlice)) swings.push({ type: 'high', candle: candles[i], index: i });
-                    if (candles[i].l <= Math.min(...lowSlice)) swings.push({ type: 'low', candle: candles[i], index: i });
-                }
-                return swings;
-            },
-            getFVG: (candles) => {
-                let bullishFVG = null;
-                let bearishFVG = null;
-                if (!candles || candles.length < 3) return { bullish: null, bearish: null };
-
-                for (let i = candles.length - 3; i > 0; i--) {
-                    const candle1 = candles[i];
-                    const candle3 = candles[i + 2];
-
-                    if (!bullishFVG && candle1.h < candle3.l) {
-                        bullishFVG = { high: candle3.l, low: candle1.h };
-                    }
-                    if (!bearishFVG && candle1.l > candle3.h) {
-                        bearishFVG = { high: candle1.l, low: candle3.h };
-                    }
-                    if (bullishFVG && bearishFVG) break;
-                }
-                return { bullish: bullishFVG, bearish: bearishFVG };
-            }
-        };
+            currentPrice: document.getElementById('current-price'),
+        },
         
-        const smcAnalysis = (candles, lookback) => {
-            let report = { 
-                bias: "LATERAL", 
-                demandZone: null, supplyZone: null, 
-                bullishFVG: null, bearishFVG: null,
-                buyPlan: null, sellPlan: null
+        showLoader() {
+            this.elements.loader.style.display = 'block';
+            this.elements.analysisResult.style.display = 'none';
+            this.elements.errorMessage.style.display = 'none';
+        },
+
+        hideLoader() {
+            this.elements.loader.style.display = 'none';
+        },
+
+        showError(message) {
+            this.elements.errorMessage.textContent = `❌ ${message}`;
+            this.elements.errorMessage.style.display = 'block';
+        },
+
+        formatPrice(price) {
+            if (typeof price !== 'number') return 'N/A';
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+        },
+
+        render(report) {
+            this.elements.analysisResult.innerHTML = '';
+            this.elements.analysisResult.style.display = 'block';
+            
+            this.elements.priceDisplay.style.display = 'flex';
+            this.elements.currentPrice.textContent = this.formatPrice(report.currentPrice);
+            
+            const { bias, lastEvent, breakLevel, timeframe, buyPlan, sellPlan, demandZone, supplyZone, bullishFVG, bearishFVG } = report;
+
+            const biasStyles = {
+                ALTA: { bg: "bg-green-800/50", border: "border-green-500", text: "text-green-300", icon: "↑" },
+                BAIXA: { bg: "bg-red-800/50", border: "border-red-500", text: "text-red-300", icon: "↓" },
+                LATERAL: { bg: "bg-gray-800/50", border: "border-gray-500", text: "text-gray-300", icon: "↔" },
             };
-            const swings = ta.getSwingPoints(candles, lookback);
-            if (swings.length < 4) return report;
-
-            const highs = swings.filter(s => s.type === 'high');
-            const lows = swings.filter(s => s.type === 'low');
-            if (highs.length < 2 || lows.length < 2) return report;
-
-            const lastHigh = highs.at(-1);
-            const prevHigh = highs.at(-2);
-            const lastLow = lows.at(-1);
-            const prevLow = lows.at(-2);
+            const style = biasStyles[bias] || biasStyles.LATERAL;
             
-            if (lastHigh.candle.h > prevHigh.candle.h && lastLow.candle.l > prevLow.candle.l) {
-                report.bias = 'ALTA';
-            } else if (lastLow.candle.l < prevLow.candle.l && lastHigh.candle.h < prevHigh.candle.h) {
-                report.bias = 'BAIXA';
-            }
+            // **NOVO**: Formata o texto do evento com o preço da quebra
+            const eventText = lastEvent 
+                ? `<span class="text-xl sm:text-2xl text-gray-400 ml-3">(${lastEvent} @ ${this.formatPrice(breakLevel)})</span>` 
+                : '';
 
-            if (report.bias === 'ALTA') {
-                const candlesAroundLastLow = candles.slice(Math.max(0, lastLow.index - lookback), lastLow.index + 1);
-                const downCandleAtHL = candlesAroundLastLow.filter(c => c.o > c.c).pop();
-                if(downCandleAtHL) report.demandZone = { low: downCandleAtHL.l, high: downCandleAtHL.h };
-            } else if (report.bias === 'BAIXA') {
-                const candlesAroundLastHigh = candles.slice(Math.max(0, lastHigh.index - lookback), lastHigh.index + 1);
-                const upCandleAtLH = candlesAroundLastHigh.filter(c => c.c > c.o).pop();
-                if(upCandleAtLH) report.supplyZone = { low: upCandleAtLH.l, high: upCandleAtLH.h };
-            }
+            const biasHTML = `
+                <div class="animate-fade-in p-4 sm:p-6 rounded-lg border-2 ${style.border} ${style.bg} text-center shadow-xl">
+                    <h2 class="text-lg font-semibold text-gray-300 mb-1">VIÉS DO MERCADO (${timeframe.toUpperCase()})</h2>
+                    <p class="text-4xl sm:text-5xl font-bold ${style.text} tracking-wider flex items-center justify-center flex-wrap">
+                        <span>${style.icon} ${bias}</span>
+                        ${eventText}
+                    </p>
+                </div>`;
+            this.elements.analysisResult.insertAdjacentHTML('beforeend', biasHTML);
 
-            const fvgs = ta.getFVG(candles);
-            report.bullishFVG = fvgs.bullish;
-            report.bearishFVG = fvgs.bearish;
-
-            if (report.bias === 'ALTA' && report.demandZone) {
-                const risk = report.demandZone.high - report.demandZone.low;
-                report.buyPlan = {
-                    title: "Plano de Compra (Viés de Alta)",
-                    entry: report.demandZone.high,
-                    stop: report.demandZone.low,
-                    target: report.demandZone.high + (risk * 2)
-                };
-            } else if (report.bias === 'BAIXA' && report.supplyZone) {
-                 const risk = report.supplyZone.high - report.supplyZone.low;
-                report.sellPlan = {
-                    title: "Plano de Venda (Viés de Baixa)",
-                    entry: report.supplyZone.low,
-                    stop: report.supplyZone.high,
-                    target: report.supplyZone.low - (risk * 2)
-                };
-            } else if (report.bias === 'LATERAL') {
-                const resistance = Math.max(lastHigh.candle.h, prevHigh.candle.h);
-                const support = Math.min(lastLow.candle.l, prevLow.candle.l);
-                
-                report.sellPlan = {
-                    title: "Plano de Venda (Resistência)",
-                    entry: resistance,
-                    stop: resistance * 1.005,
-                    target: support
-                };
-                report.buyPlan = {
-                    title: "Plano de Compra (Suporte)",
-                    entry: support,
-                    stop: support * 0.995,
-                    target: resistance
-                };
-            }
-
-            return report;
-        };
-
-        function renderUI(report, timeframe, currentPrice) {
-            const { bias, demandZone, supplyZone, bullishFVG, bearishFVG, buyPlan, sellPlan } = report;
-
-            dom.priceDisplay.style.display = 'flex';
-            dom.currentPriceElement.textContent = '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-            const biasStyles = { ALTA: "bg-green-600 border-green-400", BAIXA: "bg-red-600 border-red-400", LATERAL: "bg-gray-600 border-gray-500" };
-            
-            const createTradePlanHTML = (plan) => {
+            const createPlanHTML = (plan, type) => {
                 if (!plan) return '';
-                const isBuy = plan.title.includes('Compra');
-                const colorClass = isBuy ? 'border-green-500' : 'border-red-500';
+                const isBuy = type === 'buy';
+                const colors = isBuy 
+                    ? { border: 'border-green-500', text: 'text-green-300', icon: '📈' } 
+                    : { border: 'border-red-500', text: 'text-red-300', icon: '📉' };
+                
                 return `
-                    <div class="p-4 rounded-lg bg-gray-900/70 border-l-4 ${colorClass} space-y-3 mt-4">
-                         <h3 class="text-xl font-semibold text-cyan-400 mb-2">${plan.title}</h3>
-                         <div class="flex justify-between items-center"><span class="text-gray-400">Entrada:</span><span class="font-mono text-lg text-white">${plan.entry ? plan.entry.toFixed(2) : 'N/A'}</span></div>
-                         <div class="flex justify-between items-center"><span class="text-gray-400">Alvo:</span><span class="font-mono text-lg text-green-400">${plan.target ? plan.target.toFixed(2) : 'N/A'}</span></div>
-                         <div class="flex justify-between items-center"><span class="text-gray-400">Stop:</span><span class="font-mono text-lg text-red-400">${plan.stop ? plan.stop.toFixed(2) : 'N/A'}</span></div>
-                    </div>
-                `;
+                    <div class="animate-fade-in p-4 rounded-lg bg-gray-900/60 border-l-4 ${colors.border} space-y-2 mt-4 shadow-lg">
+                        <h3 class="text-lg font-semibold ${colors.text} flex items-center">${colors.icon} ${plan.title}</h3>
+                        <div class="flex justify-between items-center text-sm"><span class="text-gray-400">Entrada:</span><span class="font-mono text-base">${this.formatPrice(plan.entry)}</span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-gray-400">Alvo:</span><span class="font-mono text-base text-cyan-400">${this.formatPrice(plan.target)}</span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-gray-400">Stop:</span><span class="font-mono text-base text-red-400">${this.formatPrice(plan.stop)}</span></div>
+                    </div>`;
             };
+            
+            const plansHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${createPlanHTML(buyPlan, 'buy')}
+                    ${createPlanHTML(sellPlan, 'sell')}
+                </div>`;
+            if (buyPlan || sellPlan) this.elements.analysisResult.insertAdjacentHTML('beforeend', plansHTML);
 
-            dom.analysisResultContainer.innerHTML = `
-                <div class="grid grid-cols-1 gap-6">
-                    <div class="text-center p-6 rounded-lg border-2 shadow-lg ${biasStyles[bias]}">
-                        <h2 class="text-xl font-semibold text-white mb-1">VIÉS DO MERCADO (${timeframe.toUpperCase()})</h2>
-                        <p class="text-5xl font-bold text-white tracking-wider">${bias}</p>
-                    </div>
-
-                    <section>
-                        ${createTradePlanHTML(buyPlan)}
-                        ${createTradePlanHTML(sellPlan)}
-                    </section>
-
-                    <section>
-                        <h3 class="flex items-center text-2xl font-bold text-cyan-400 mb-4 border-b-2 border-gray-700 pb-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                            Zonas de Interesse (SMC)
-                        </h3>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center p-4 bg-green-900/30 rounded-md border-l-4 border-green-500">
-                                <span class="text-gray-300 font-semibold">Zona de Demanda (OB)</span>
-                                <span class="font-mono text-lg text-green-400">${demandZone ? `${demandZone.low.toFixed(2)} - ${demandZone.high.toFixed(2)}` : 'N/A'}</span>
-                            </div>
-                            <div class="flex justify-between items-center p-4 bg-red-900/30 rounded-md border-l-4 border-red-500">
-                                <span class="text-gray-300 font-semibold">Zona de Oferta (OB)</span>
-                                <span class="font-mono text-lg text-red-400">${supplyZone ? `${supplyZone.low.toFixed(2)} - ${supplyZone.high.toFixed(2)}` : 'N/A'}</span>
-                            </div>
-                            <div class="flex justify-between items-center p-4 bg-green-900/30 rounded-md border-l-4 border-green-500">
-                                <span class="text-gray-300 font-semibold">FVG (Compra)</span>
-                                <span class="font-mono text-lg text-green-400">${bullishFVG ? `${bullishFVG.low.toFixed(2)} - ${bullishFVG.high.toFixed(2)}` : 'N/A'}</span>
-                            </div>
-                            <div class="flex justify-between items-center p-4 bg-red-900/30 rounded-md border-l-4 border-red-500">
-                                <span class="text-gray-300 font-semibold">FVG (Venda)</span>
-                                <span class="font-mono text-lg text-red-400">${bearishFVG ? `${bearishFVG.low.toFixed(2)} - ${bearishFVG.high.toFixed(2)}` : 'N/A'}</span>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            `;
-            dom.analysisResultContainer.classList.add('animate-fade-in');
+            const createZoneHTML = (label, zone, isBullish) => `
+                <div class="flex justify-between items-center p-3 bg-gray-900/50 rounded-md border-l-4 ${isBullish ? 'border-green-500' : 'border-red-500'}">
+                    <span class="text-gray-400 text-sm font-semibold">${label}</span>
+                    <span class="font-mono text-base ${isBullish ? 'text-green-400' : 'text-red-400'}">${zone ? `${this.formatPrice(zone.low)} - ${this.formatPrice(zone.high)}` : 'N/A'}</span>
+                </div>`;
+            
+            const zonesHTML = `
+                <div class="animate-fade-in p-4 rounded-lg bg-gray-800/40 border border-gray-700">
+                     <h3 class="text-xl font-bold text-cyan-400 mb-4 border-b border-gray-700 pb-2">Zonas de Interesse</h3>
+                     <div class="space-y-3">
+                        ${createZoneHTML('Zona de Demanda', demandZone, true)}
+                        ${createZoneHTML('Zona de Oferta', supplyZone, false)}
+                        ${createZoneHTML('FVG de Compra', bullishFVG, true)}
+                        ${createZoneHTML('FVG de Venda', bearishFVG, false)}
+                     </div>
+                </div>`;
+            this.elements.analysisResult.insertAdjacentHTML('beforeend', zonesHTML);
         }
+    };
 
-        async function fetchData(timeframe) {
+    /**
+     * MÓDULO API: Responsável por buscar dados externos.
+     */
+    const API = {
+        async fetchCandles(timeframe) {
             const now = Date.now();
-            const multipliers = { '1h': 5, '1d': 100 };
+            const multipliers = { '1h': 15, '4h': 60, '1d': 365 };
             const daysToFetch = multipliers[timeframe] || 30;
             const startTime = now - (daysToFetch * 24 * 60 * 60 * 1000);
-            const req = { "type": "candleSnapshot", "req": { "coin": "BTC", "interval": timeframe, "startTime": startTime, "endTime": now } };
-            const res = await fetch('https://api.hyperliquid.xyz/info', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }, body: JSON.stringify(req) });
-            if (!res.ok) throw new Error(`Falha na API para ${timeframe}.`);
-            return (await res.json()).slice(-500).map(c => ({ o: parseFloat(c.o), h: parseFloat(c.h), l: parseFloat(c.l), c: parseFloat(c.c) }));
-        }
 
-        async function handleAnalyze() {
-            dom.loader.style.display = 'block';
-            dom.errorMessage.style.display = 'none';
-            dom.analysisResultContainer.style.display = 'none';
-            dom.analysisResultContainer.classList.remove('animate-fade-in');
-            dom.analyzeButton.disabled = true;
+            const requestBody = {
+                type: "candleSnapshot",
+                req: { coin: "BTC", interval: timeframe, startTime: startTime, endTime: now }
+            };
 
-            const selectedTimeframe = dom.timeframeSelector.value;
-            const lookback = selectedTimeframe === '1d' ? 10 : 5; // Lógica de lookback ajustável
+            const response = await fetch('https://api.hyperliquid.xyz/info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
 
-            try {
-                const data = await fetchData(selectedTimeframe);
-                
-                if (!data || data.length === 0) throw new Error(`Dados para ${selectedTimeframe} não puderam ser carregados.`);
-                
-                const report = smcAnalysis(data, lookback);
-                const currentPrice = data.at(-1).c;
-                
-                renderUI(report, selectedTimeframe, currentPrice);
-                dom.analysisResultContainer.style.display = 'block';
-
-            } catch (e) {
-                dom.errorMessage.textContent = `Erro ao buscar dados: ${e.message}. Isso pode ser uma falha temporária da API. Tente novamente em alguns instantes.`;
-                dom.errorMessage.style.display = 'block';
-            } finally {
-                dom.loader.style.display = 'none';
-                dom.analyzeButton.disabled = false;
+            if (!response.ok) {
+                throw new Error(`Falha na API da Hyperliquid (status: ${response.status}). Tente novamente.`);
             }
-        }
-        
-        function setup() {
-            dom.analyzeButton.addEventListener('click', handleAnalyze);
-            dom.timeframeSelector.addEventListener('change', handleAnalyze);
             
-            handleAnalyze();
+            const data = await response.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                 throw new Error("A API não retornou dados de candles válidos.");
+            }
+            
+            return data.map(c => ({
+                t: parseInt(c.t), o: parseFloat(c.o), h: parseFloat(c.h),
+                l: parseFloat(c.l), c: parseFloat(c.c)
+            }));
         }
+    };
 
-        setup();
-    });
-    </script>
+    /**
+     * MÓDULO SMC: Contém toda a lógica pura de análise técnica.
+     */
+    const SMC = {
+        analyze(candles, timeframe) {
+            if (!candles || candles.length < 50) {
+                throw new Error("Dados insuficientes para uma análise confiável.");
+            }
+
+            const lookback = timeframe === '1d' ? 8 : 5;
+            const swings = this._findSwingPoints(candles, lookback);
+            if (swings.length < 4) {
+                 throw new Error("Não foi possível identificar topos/fundos suficientes para a análise.");
+            }
+
+            const structure = this._findMarketStructure(swings);
+            const pois = this._findPointsOfInterest(candles, structure);
+            
+            const report = {
+                ...structure, ...pois, timeframe,
+                currentPrice: candles.at(-1).c
+            };
+            
+            report.buyPlan = this._createTradePlan(report, 'buy');
+            report.sellPlan = this._createTradePlan(report, 'sell');
+            
+            return report;
+        },
+
+        _findSwingPoints(candles, lookback) {
+            const swings = [];
+            for (let i = lookback; i < candles.length - lookback; i++) {
+                const isHigh = candles.slice(i - lookback, i + lookback + 1).every(c => candles[i].h >= c.h);
+                if (isHigh) swings.push({ type: 'high', price: candles[i].h, index: i });
+
+                const isLow = candles.slice(i - lookback, i + lookback + 1).every(c => candles[i].l <= c.l);
+                if (isLow) swings.push({ type: 'low', price: candles[i].l, index: i });
+            }
+            return swings;
+        },
+        
+        _findMarketStructure(swings) {
+            const highs = swings.filter(s => s.type === 'high');
+            const lows = swings.filter(s => s.type === 'low');
+            
+            const [lastHigh, prevHigh] = highs.slice(-2);
+            const [lastLow, prevLow] = lows.slice(-2);
+            
+            if (lastHigh.price > prevHigh.price && lastLow.price > prevLow.price) {
+                return { bias: 'ALTA', lastEvent: 'BOS', breakLevel: prevHigh.price, majorHigh: lastHigh, majorLow: prevLow };
+            }
+            if (lastLow.price < prevLow.price && lastHigh.price < prevHigh.price) {
+                return { bias: 'BAIXA', lastEvent: 'BOS', breakLevel: prevLow.price, majorHigh: prevHigh, majorLow: lastLow };
+            }
+            if (lastLow.price < prevLow.price && lastHigh.index > prevLow.index) {
+                 return { bias: 'BAIXA', lastEvent: 'CHoCH', breakLevel: prevLow.price, majorHigh: lastHigh, majorLow: lastLow };
+            }
+            if (lastHigh.price > prevHigh.price && lastLow.index > prevHigh.index) {
+                return { bias: 'ALTA', lastEvent: 'CHoCH', breakLevel: prevHigh.price, majorHigh: lastHigh, majorLow: lastLow };
+            }
+            
+            return { bias: 'LATERAL', lastEvent: '', breakLevel: null, majorHigh: lastHigh, majorLow: lastLow };
+        },
+
+        _findPointsOfInterest(candles, structure) {
+            const { majorHigh, majorLow } = structure;
+            if (!majorHigh || !majorLow) return {};
+            
+            const rangeStart = Math.min(majorLow.price, majorHigh.price);
+            const rangeEnd = Math.max(majorLow.price, majorHigh.price);
+            const fib50 = rangeStart + (rangeEnd - rangeStart) * 0.5;
+
+            let demandZone = null, supplyZone = null;
+            let bullishFVG = null, bearishFVG = null;
+            
+            const startIndex = Math.min(majorLow.index, majorHigh.index);
+            const endIndex = Math.max(majorLow.index, majorHigh.index);
+
+            for (let i = endIndex - 1; i > startIndex; i--) {
+                const candle = candles[i];
+                const prevCandle = candles[i - 1];
+                const nextCandle = candles[i + 1];
+
+                if (candle.h < fib50) { // Zona de Desconto
+                    if (!demandZone && candle.c < candle.o) {
+                        demandZone = { low: candle.l, high: candle.h };
+                    }
+                    if (!bullishFVG && prevCandle && nextCandle && prevCandle.h < nextCandle.l) {
+                        bullishFVG = { low: prevCandle.h, high: nextCandle.l };
+                    }
+                } else if (candle.l > fib50) { // Zona Premium
+                    if (!supplyZone && candle.c > candle.o) {
+                        supplyZone = { low: candle.l, high: candle.h };
+                    }
+                    if (!bearishFVG && prevCandle && nextCandle && prevCandle.l > nextCandle.h) {
+                         bearishFVG = { low: nextCandle.h, high: prevCandle.l };
+                    }
+                }
+            }
+            return { demandZone, supplyZone, bullishFVG, bearishFVG };
+        },
+        
+        _createTradePlan(report, type) {
+            const { bias, demandZone, supplyZone, majorHigh, majorLow } = report;
+            if (type === 'buy') {
+                if (bias === 'ALTA' && demandZone) {
+                    return {
+                        title: "Plano de Compra (Desconto)",
+                        entry: demandZone.high, stop: demandZone.low,
+                        target: majorHigh.price
+                    };
+                }
+            }
+
+            if (type === 'sell') {
+                if (bias === 'BAIXA' && supplyZone) {
+                    return {
+                        title: "Plano de Venda (Premium)",
+                        entry: supplyZone.low, stop: supplyZone.high,
+                        target: majorLow.price
+                    };
+                }
+            }
+            return null;
+        }
+    };
+
+    /**
+     * MÓDULO APP: Orquestrador principal da aplicação.
+     */
+    const App = {
+        async handleAnalyze() {
+            UI.showLoader();
+            try {
+                const timeframe = UI.elements.timeframeSelector.value;
+                const candles = await API.fetchCandles(timeframe);
+                const report = SMC.analyze(candles, timeframe);
+                UI.render(report);
+            } catch (error) {
+                console.error("Erro na análise:", error);
+                UI.showError(error.message);
+            } finally {
+                UI.hideLoader();
+            }
+        },
+
+        init() {
+            UI.elements.timeframeSelector.addEventListener('change', () => this.handleAnalyze());
+            this.handleAnalyze();
+        }
+    };
+
+    App.init();
+});
+</script>
+
 </body>
 </html>
