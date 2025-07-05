@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sir BAP AI - Análise SMC v2.2</title>
+    <title>Sir BAP AI - Análise SMC v2.3</title>
     <!-- Tailwind CSS para Estilização Rápida -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Estilos personalizados e animações */
-        html, body {
-            background-color: #111827; /* Cor de fundo principal (bg-gray-900) */
+        body {
+            /* Imagem de fundo */
+            background-image: url('https://www.moneytimes.com.br/uploads/2024/10/pictures-anna-17.jpg');
+            background-size: cover; /* Cobre toda a área */
+            background-position: center; /* Centraliza a imagem */
+            background-attachment: fixed; /* Mantém o fundo fixo ao rolar */
+            background-repeat: no-repeat; /* Não repete a imagem */
             scroll-behavior: smooth;
         }
+
+        /* Animação de fade-in para os elementos */
         @keyframes fade-in {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -23,25 +30,27 @@
 </head>
 <body class="bg-gray-900 text-gray-200 font-sans">
 
-    <div class="max-w-4xl mx-auto p-4 sm:p-6">
+    <!-- Overlay para garantir a legibilidade do texto sobre a imagem de fundo -->
+    <div class="absolute inset-0 bg-gray-900/80 backdrop-blur-sm"></div>
+
+    <!-- Conteúdo principal -->
+    <div class="relative max-w-4xl mx-auto p-4 sm:p-6">
 
         <!-- CABEÇALHO -->
         <header class="text-center mb-6">
-    <div class="flex items-center justify-center mb-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" class="text-cyan-400">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.22 13.6h-4.34c-.45 1.01-1.45 1.63-2.58 1.63-.16 0-.32-.02-.48-.05A5.8 5.8 0 0 1 3.2 12a5.8 5.8 0 0 1 4.62-5.18c.16-.03.32-.05.48-.05 1.13 0 2.13.62 2.58 1.63h4.34c.41 0 .75.34.75.75v1.12c0 .41-.34.75-.75.75h-1.55c.13.3.23.62.28.94h1.27c.41 0 .75.34.75.75v1.13c0 .41-.34.75-.75.75h-1.27c-.05.32-.15.64-.28.94h1.55c.41 0 .75.34.75.75v1.13c0 .41-.34.75-.75.75zM8.93 9.42c-.22-.63-.86-1.05-1.57-1.05-.1 0-.2.01-.3.03-.78.15-1.33.86-1.18 1.64.15.78.86 1.33 1.64 1.18.78-.15 1.33-.86 1.18-1.64.02-.02.02-.03.03-.06zm.68 5.16c-.34-.78-.04-1.68.74-2.02.78-.34 1.68-.04 2.02.74.34.78.04 1.68-.74 2.02-.78.34-1.68.04-2.02-.74z"></path>
-        </svg>
-
-        <h1 class="text-4xl sm:text-5xl font-bold ml-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
-            Sir BAP AI
-        </h1>
-    </div>
-    <p class="text-gray-400 text-sm sm:text-base">Análise de Smart Money Concepts para Bitcoin (BTC)</p>
-</header>
+            <div class="flex items-center justify-center mb-2">
+                <!-- ÍCONE ATUALIZADO -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg" alt="Ícone do Bitcoin" class="w-10 h-10">
+                
+                <h1 class="text-4xl sm:text-5xl font-bold ml-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+                    Sir BAP AI
+                </h1>
+            </div>
+            <p class="text-gray-400 text-sm sm:text-base">Análise de Smart Money Concepts para Bitcoin (BTC)</p>
         </header>
 
         <!-- PAINEL DE CONTROLE -->
-        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="bg-gray-800/60 border border-gray-700 rounded-lg p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <label for="timeframe-selector" class="font-semibold text-gray-300">Tempo Gráfico:</label>
                 <select id="timeframe-selector" class="bg-gray-700 text-white rounded-md p-2 text-sm font-bold border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
@@ -166,10 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="animate-fade-in p-4 rounded-lg bg-gray-800/40 border border-gray-700">
                      <h3 class="text-xl font-bold text-cyan-400 mb-4 border-b border-gray-700 pb-2">Zonas de Interesse</h3>
                      <div class="space-y-3">
-                        ${createZoneHTML('Zona de Demanda', demandZone, true)}
-                        ${createZoneHTML('Zona de Oferta', supplyZone, false)}
-                        ${createZoneHTML('FVG de Compra', bullishFVG, true)}
-                        ${createZoneHTML('FVG de Venda', bearishFVG, false)}
+                         ${createZoneHTML('Zona de Demanda', demandZone, true)}
+                         ${createZoneHTML('Zona de Oferta', supplyZone, false)}
+                         ${createZoneHTML('FVG de Compra', bullishFVG, true)}
+                         ${createZoneHTML('FVG de Venda', bearishFVG, false)}
                      </div>
                 </div>`;
             this.elements.analysisResult.insertAdjacentHTML('beforeend', zonesHTML);
@@ -233,6 +242,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const structure = this._findMarketStructure(swings);
+            // Se a estrutura não puder ser determinada, retorne um erro.
+            if (structure.error) {
+                return structure;
+            }
+            
             const pois = this._findPointsOfInterest(candles, structure);
             
             const report = {
@@ -262,6 +276,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const highs = swings.filter(s => s.type === 'high');
             const lows = swings.filter(s => s.type === 'low');
             
+            // **CORREÇÃO**: Garante que temos pelo menos 2 topos e 2 fundos para evitar erros.
+            if (highs.length < 2 || lows.length < 2) {
+                return { error: "Não há topos/fundos suficientes para determinar a estrutura do mercado." };
+            }
+
             const [lastHigh, prevHigh] = highs.slice(-2);
             const [lastLow, prevLow] = lows.slice(-2);
             
